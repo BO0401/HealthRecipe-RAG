@@ -1,0 +1,42 @@
+# Java / Maven
+**/target/
+**/*.class
+**/*.jar
+**/*.war
+**/*.ear
+**/*.log
+.mvn/wrapper/maven-wrapper.jar
+**/mvnw
+**/mvnw.cmd
+.factorypath
+
+# Node / Vue
+**/node_modules/
+**/dist/
+**/dist-ssr/
+**/*.local
+**/npm-debug.log*
+**/yarn-debug.log*
+**/yarn-error.log*
+**/*.lock
+
+# IDE / Editor
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+.project
+.classpath
+.settings/
+.nb-gradle/
+
+# OS
+Thumbs.db
+.DS_Store
+
+# RAG / Data
+**/data/
+**/logs/
+**/*.db
+**/*.sqlite
