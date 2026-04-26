@@ -32,11 +32,11 @@ console.debug('[dashboard] status bar init', { lastSyncAt: sync.lastSyncAt.toISO
 
 <style scoped>
 .bottom {
-  height: 36px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 12px;
+  padding: 0 16px;
   background: #ffffff;
   border-top: 1px solid #e5e7eb;
   flex-shrink: 0;
@@ -46,15 +46,16 @@ console.debug('[dashboard] status bar init', { lastSyncAt: sync.lastSyncAt.toISO
 .right {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 }
 
 .badge {
-  font-size: 12px;
-  padding: 3px 8px;
+  font-size: 13px;
+  padding: 4px 10px;
   border-radius: 999px;
   background: rgba(34, 197, 94, 0.12);
   color: #16a34a;
+  font-weight: 600;
 }
 
 .badge[data-ok='false'] {
@@ -63,12 +64,12 @@ console.debug('[dashboard] status bar init', { lastSyncAt: sync.lastSyncAt.toISO
 }
 
 .muted {
-    font-size: 12px;
-    color: #64748b;
+    font-size: 13px;
+    color: #475569;
 }
 
 .err {
-  font-size: 12px;
+  font-size: 13px;
   color: #dc2626;
 }
 

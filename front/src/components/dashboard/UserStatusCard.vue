@@ -60,7 +60,7 @@ console.debug('[dashboard] user status card mounted')
 .user-panel {
   background: #fff;
   border-radius: 6px;
-  padding: 16px;
+  padding: 16px 18px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
   display: flex;
   flex-direction: column;
@@ -70,59 +70,63 @@ console.debug('[dashboard] user status card mounted')
 .user-header {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 10px;
+  gap: 12px;
+  margin-bottom: 12px;
 }
 
 .user-name h3 {
   margin: 0;
-  font-size: 15px;
-  color: #303133;
+  font-size: 16px;
+  color: #1a1a2e;
+  font-weight: 700;
 }
 
 .user-name p {
   margin: 0;
-  font-size: 11px;
+  font-size: 12px;
   color: #909399;
 }
 
 .status-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 6px;
-  margin-bottom: 10px;
+  gap: 8px;
+  margin-bottom: 12px;
   flex: 1;
 }
 
 .status-item .label {
-  font-size: 11px;
+  font-size: 12px;
   color: #909399;
   margin-bottom: 4px;
+  font-weight: 500;
 }
 
 .status-item .value {
-  font-size: 24px;
+  font-size: 28px;
   font-weight: bold;
-  color: #303133;
+  color: #1a1a2e;
   margin-bottom: 4px;
 }
 
 .status-tip {
-  font-size: 13px;
-  color: #606266;
-  line-height: 1.4;
+  font-size: 14px;
+  color: #303133;
+  line-height: 1.5;
+  font-weight: 500;
 }
 
 .body-metrics {
-  font-size: 13px;
-  color: #606266;
+  font-size: 14px;
+  color: #303133;
   text-align: center;
-  padding-top: 8px;
-  border-top: 1px solid #f0f2f5;
+  padding-top: 10px;
+  border-top: 1px solid #e5e7eb;
+  font-weight: 500;
 }
 
 .sep {
-  margin: 0 6px;
+  margin: 0 8px;
   color: #dcdfe6;
 }
 </style>

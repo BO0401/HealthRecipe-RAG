@@ -63,11 +63,11 @@ const doReload = async () => {
 
 <style scoped>
 .top {
-  height: 56px;
+  height: 60px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 12px;
+  padding: 0 16px;
   background: #ffffff;
   border-bottom: 1px solid #e5e7eb;
   flex-shrink: 0;
@@ -76,24 +76,24 @@ const doReload = async () => {
 .left {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
 }
 
 .brand {
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 800;
   color: #0f172a;
 }
 
 .sub {
-    font-size: 12px;
-    color: #64748b;
+    font-size: 13px;
+    color: #475569;
 }
 
 .right {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 }
 
 @media (max-width: 768px) {

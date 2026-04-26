@@ -52,15 +52,15 @@ const renderPie = () => {
     series: [
       {
         type: 'pie',
-        radius: ['45%', '75%'],
-        center: ['35%', '50%'],
+        radius: ['50%', '80%'],
+        center: ['40%', '50%'],
         avoidLabelOverlap: true,
-        itemStyle: { borderRadius: 4, borderColor: '#f0f2f5', borderWidth: 2 },
+        itemStyle: { borderRadius: 6, borderColor: '#f0f2f5', borderWidth: 3 },
         label: { show: false },
         emphasis: {
           label: {
             show: true,
-            fontSize: 20,
+            fontSize: 22,
             fontWeight: 'bold',
             formatter: '{b}\n{d}%'
           }
@@ -125,7 +125,7 @@ onBeforeUnmount(() => {
 .pie-panel {
   background: #fff;
   border-radius: 6px;
-  padding: 16px;
+  padding: 16px 18px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
   display: flex;
   flex-direction: column;
@@ -136,25 +136,26 @@ onBeforeUnmount(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
   flex-shrink: 0;
 }
 
 .pie-header .title {
   font-weight: bold;
-  font-size: 14px;
-  color: #303133;
+  font-size: 15px;
+  color: #1a1a2e;
 }
 
 .pie-header .total {
-  font-size: 13px;
-  color: #909399;
+  font-size: 15px;
+  color: #606266;
+  font-weight: 600;
 }
 
 .pie-body {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
   flex: 1;
   min-height: 0;
 }
@@ -162,43 +163,45 @@ onBeforeUnmount(() => {
 .chart-wrap {
   height: 100%;
   width: 60%;
-  min-height: 180px;
+  min-height: 200px;
 }
 
 .nutri-detail {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .nutri-item {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 13px;
+  gap: 8px;
+  font-size: 14px;
 }
 
 .nutri-dot {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
   flex-shrink: 0;
 }
 
 .nutri-name {
-  width: 28px;
+  width: 30px;
   color: #606266;
+  font-weight: 500;
 }
 
 .nutri-val {
   font-weight: bold;
-  color: #303133;
-  min-width: 40px;
+  color: #1a1a2e;
+  min-width: 44px;
 }
 
 .nutri-pct {
   color: #909399;
-  font-size: 12px;
+  min-width: 48px;
+  text-align: right;
 }
 </style>

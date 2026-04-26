@@ -40,7 +40,7 @@ const onClickAction = (key: string) => {
 .actions-panel {
   background: #fff;
   border-radius: 6px;
-  padding: 16px;
+  padding: 16px 18px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
   display: flex;
   flex-direction: column;
@@ -49,15 +49,15 @@ const onClickAction = (key: string) => {
 
 .actions-header {
   font-weight: bold;
-  font-size: 14px;
-  color: #303133;
-  margin-bottom: 12px;
+  font-size: 15px;
+  color: #1a1a2e;
+  margin-bottom: 14px;
 }
 
 .actions-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
   flex: 1;
 }
 
@@ -65,10 +65,10 @@ const onClickAction = (key: string) => {
   width: 100%;
   justify-content: flex-start;
   margin: 0 !important;
-  font-weight: 500;
-  padding: 12px 16px !important;
-  font-size: 14px;
-  flex: 1; /* 让按钮均分可用高度 */
+  font-weight: 600;
+  padding: 14px 18px !important;
+  font-size: 15px;
+  flex: 1;
 }
 
 .m-r-6 {

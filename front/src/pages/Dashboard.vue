@@ -59,38 +59,35 @@ console.log('[dashboard] final grid layout activated')
 .dash-content {
   flex: 1;
   padding: 0;
-  overflow-y: auto; /* 允许滚动，不强行拉伸 */
+  overflow-y: auto;
 }
 
 .grid-wall {
   display: flex;
   flex-direction: column;
-  gap: 12px; /* 统一间距 12px */
-  padding: 16px; /* 统一外边距 16px */
-  max-width: 1440px;
-  margin: 0 auto;
+  gap: 8px;
+  padding: 10px;
   width: 100%;
   box-sizing: border-box;
 }
 
 .gw-row {
   display: flex;
-  gap: 12px;
+  gap: 8px;
   width: 100%;
 }
 
 .gw-row--main {
-  height: 320px; /* 固定第二行高度 */
+  height: 360px;
 }
 
 .gw-row--footer {
-  /* 由内容撑开高度 */
   align-items: stretch;
 }
 
 .gw-cell {
   display: flex;
-  min-width: 0; /* 防止子元素溢出 flex 容器 */
+  min-width: 0;
 }
 
 .gw-cell--60 {
@@ -101,7 +98,6 @@ console.log('[dashboard] final grid layout activated')
   flex: 4;
 }
 
-/* 让所有组件撑满格子 */
 .gw-cell > * {
   width: 100%;
 }

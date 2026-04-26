@@ -52,20 +52,20 @@ console.debug('[dashboard] extension list init', alerts.length)
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 14px 0;
+  padding: 14px 18px 0;
   flex-shrink: 0;
 }
 
 .ext-header .title {
   font-weight: bold;
-  font-size: 14px;
-  color: #303133;
+  font-size: 15px;
+  color: #1a1a2e;
 }
 
 .ext-list {
   flex: 1;
   overflow-y: auto;
-  padding: 0 14px;
+  padding: 0 18px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -75,8 +75,8 @@ console.debug('[dashboard] extension list init', alerts.length)
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 0;
-  border-bottom: 1px solid #f0f2f5;
+  padding: 9px 0;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .ext-item:last-child {
@@ -90,8 +90,8 @@ console.debug('[dashboard] extension list init', alerts.length)
 }
 
 .item-icon {
-  font-size: 16px;
-  padding: 6px;
+  font-size: 18px;
+  padding: 7px;
   border-radius: 50%;
 }
 
@@ -101,14 +101,14 @@ console.debug('[dashboard] extension list init', alerts.length)
 .item-icon.info { background: #f4f4f5; color: #909399; }
 
 .item-title {
-  font-size: 13px;
-  color: #303133;
-  font-weight: 500;
+  font-size: 14px;
+  color: #1a1a2e;
+  font-weight: 600;
 }
 
 .item-date {
-  font-size: 11px;
+  font-size: 12px;
   color: #909399;
-  margin-top: 1px;
+  margin-top: 2px;
 }
 </style>

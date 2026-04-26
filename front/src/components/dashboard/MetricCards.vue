@@ -35,7 +35,7 @@ console.log('[dashboard] metric cards loaded', metrics.length)
 <style scoped>
 .metric-grid {
   display: flex;
-  gap: 12px;
+  gap: 8px;
   width: 100%;
 }
 
@@ -43,7 +43,7 @@ console.log('[dashboard] metric cards loaded', metrics.length)
   flex: 1;
   background: #fff;
   border-radius: 6px;
-  padding: 12px 14px;
+  padding: 16px 18px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
 }
 
@@ -54,33 +54,35 @@ console.log('[dashboard] metric cards loaded', metrics.length)
 }
 
 .metric-title {
-  font-size: 13px;
-  color: #909399;
-  margin-bottom: 2px;
+  font-size: 14px;
+  color: #606266;
+  margin-bottom: 4px;
+  font-weight: 500;
 }
 
 .metric-value-wrap {
-  margin-bottom: 2px;
+  margin-bottom: 4px;
 }
 
 .metric-value-wrap .value {
-  font-size: 22px;
+  font-size: 28px;
   font-weight: bold;
-  color: #303133;
+  color: #1a1a2e;
 }
 
 .metric-value-wrap .unit {
-  font-size: 12px;
+  font-size: 13px;
   color: #606266;
-  margin-left: 2px;
+  margin-left: 3px;
 }
 
 .metric-trend {
-  font-size: 12px;
+  font-size: 13px;
   color: #67C23A;
+  font-weight: 500;
 }
 
 .metric-icon {
-  opacity: 0.7;
+  opacity: 0.85;
 }
 </style>
