@@ -16,12 +16,12 @@ console.log('[dashboard] final grid layout activated')
 
     <el-main class="dash-content">
       <div class="grid-wall">
-        <!-- 第一行：4 个指标卡片 (全宽) -->
+        <!-- 第一行：指标卡片 -->
         <div class="gw-row">
           <MetricCards />
         </div>
 
-        <!-- 第二行：饼图 (60%) + 预警列表 (40%) -->
+        <!-- 第二行：饼图、预警列表 -->
         <div class="gw-row gw-row--main">
           <div class="gw-cell gw-cell--60">
             <NutritionPieCard />
@@ -31,7 +31,7 @@ console.log('[dashboard] final grid layout activated')
           </div>
         </div>
 
-        <!-- 第三行：用户卡片 (60%) + 快捷入口 (40%) -->
+        <!-- 第三行：用户卡片、快捷入口-->
         <div class="gw-row gw-row--footer">
           <div class="gw-cell gw-cell--60">
             <UserStatusCard />
