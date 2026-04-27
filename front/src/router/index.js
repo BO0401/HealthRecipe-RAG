@@ -18,12 +18,11 @@ const routes = [
   {
     path: '/inventory',
     name: 'Inventory',
-    component: () => import('../pages/inventory/InventoryPage.vue')
+    component: () => import('../pages/inventory-shopping/InventoryShoppingPage.vue')
   },
   {
     path: '/shopping',
-    name: 'Shopping',
-    component: () => import('../pages/shopping/ShoppingPage.vue')
+    redirect: '/inventory'
   },
   {
     path: '/ai-chat',

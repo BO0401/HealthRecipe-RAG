@@ -5,7 +5,6 @@ import {
   DataAnalysis,
   Food,
   Goods,
-  ShoppingCart,
   ChatLineSquare
 } from '@element-plus/icons-vue'
 
@@ -15,8 +14,7 @@ const router = useRouter()
 const menuItems = [
   { path: '/dashboard', label: '工作台', icon: DataAnalysis },
   { path: '/recipe', label: '食谱库', icon: Food },
-  { path: '/inventory', label: '库存管理', icon: Goods },
-  { path: '/shopping', label: '采购清单', icon: ShoppingCart },
+  { path: '/inventory', label: '食材管理', icon: Goods },
   { path: '/ai-chat', label: 'AI 营养助手', icon: ChatLineSquare }
 ]
 
