@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, reactive } from 'vue'
+import { recipeApi, type RecipeVO } from '../api/recipe'
 
 export interface RecipeItem {
   id: number
@@ -16,6 +17,16 @@ export interface FilterState {
   allergens: string[]
   keyword: string
 }
+
+const toRecipeItem = (vo: RecipeVO): RecipeItem => ({
+  id: vo.id,
+  name: vo.name,
+  image: vo.coverImg || 'https://placehold.co/400x300/409EFF/FFFFFF?text=美食',
+  calories: vo.calories || 0,
+  cookingTime: vo.cookTime || 0,
+  tags: vo.tags || [],
+  description: vo.description || ''
+})
 
 export const useRecipeStore = defineStore('recipe', () => {
   const recipes = ref<RecipeItem[]>([])
@@ -52,66 +63,13 @@ export const useRecipeStore = defineStore('recipe', () => {
     error.value = ''
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 600))
+      const params: any = {}
+      if (filter.bodyType) params.bodyType = filter.bodyType
+      if (filter.allergens.length > 0) params.allergens = filter.allergens
+      if (filter.keyword) params.keyword = filter.keyword
 
-      const mockData: RecipeItem[] = [
-        {
-          id: 1,
-          name: '香煎鸡胸肉配时蔬',
-          image: 'https://placehold.co/400x300/409EFF/FFFFFF?text=香煎鸡胸肉',
-          calories: 320,
-          cookingTime: 25,
-          tags: ['高蛋白', '减脂', '快手'],
-          description: '低脂高蛋白的鸡胸肉搭配新鲜时蔬，简单调味即可享受健康美味。'
-        },
-        {
-          id: 2,
-          name: '藜麦牛油果沙拉',
-          image: 'https://placehold.co/400x300/67C23A/FFFFFF?text=藜麦牛油果沙拉',
-          calories: 280,
-          cookingTime: 15,
-          tags: ['素食', '低碳水', '沙拉'],
-          description: '超级食物藜麦搭配 creamy 牛油果，营养均衡的清爽沙拉。'
-        },
-        {
-          id: 3,
-          name: '三文鱼烤蔬菜',
-          image: 'https://placehold.co/400x300/E6A23C/FFFFFF?text=三文鱼烤蔬菜',
-          calories: 420,
-          cookingTime: 35,
-          tags: ['高蛋白', 'Omega-3', '烤箱菜'],
-          description: '富含Omega-3的三文鱼搭配烤制时蔬，外酥里嫩的健康之选。'
-        },
-        {
-          id: 4,
-          name: '番茄鸡蛋全麦面',
-          image: 'https://placehold.co/400x300/F56C6C/FFFFFF?text=番茄鸡蛋面',
-          calories: 380,
-          cookingTime: 20,
-          tags: ['家常', '快手', '全谷物'],
-          description: '经典番茄鸡蛋搭配全麦面条，酸甜开胃又富含膳食纤维。'
-        },
-        {
-          id: 5,
-          name: '豆腐蔬菜煲',
-          image: 'https://placehold.co/400x300/909399/FFFFFF?text=豆腐蔬菜煲',
-          calories: 240,
-          cookingTime: 30,
-          tags: ['素食', '低卡', '暖胃'],
-          description: '嫩滑豆腐搭配多种时蔬，清淡鲜美的暖身煲仔菜。'
-        },
-        {
-          id: 6,
-          name: '牛肉糙米饭',
-          image: 'https://placehold.co/400x300/409EFF/FFFFFF?text=牛肉糙米饭',
-          calories: 450,
-          cookingTime: 40,
-          tags: ['增肌', '高蛋白', '主食'],
-          description: '嫩滑牛肉片搭配营养糙米，满足增肌期的能量需求。'
-        }
-      ]
-
-      recipes.value = mockData
+      const res = await recipeApi.recommend(params)
+      recipes.value = res.data.map(toRecipeItem)
     } catch (err) {
       error.value = '获取食谱失败，请稍后重试'
       console.error('[recipe store] fetch error:', err)
@@ -120,17 +78,29 @@ export const useRecipeStore = defineStore('recipe', () => {
     }
   }
 
-  const addRecipe = (recipe: Omit<RecipeItem, 'id'>) => {
-    const maxId = recipes.value.reduce((max, r) => Math.max(max, r.id), 0)
-    const newRecipe: RecipeItem = {
-      ...recipe,
-      id: maxId + 1
+  const addRecipe = async (recipe: Omit<RecipeItem, 'id'>) => {
+    try {
+      const res = await recipeApi.create({
+        name: recipe.name,
+        coverImg: recipe.image,
+        calories: recipe.calories,
+        cookTime: recipe.cookingTime,
+        tags: recipe.tags,
+        description: recipe.description
+      })
+      recipes.value.push(toRecipeItem(res.data))
+    } catch (err) {
+      console.error('[recipe store] add error:', err)
     }
-    recipes.value.push(newRecipe)
   }
 
-  const removeRecipe = (id: number) => {
-    recipes.value = recipes.value.filter(r => r.id !== id)
+  const removeRecipe = async (id: number) => {
+    try {
+      await recipeApi.remove(id)
+      recipes.value = recipes.value.filter(r => r.id !== id)
+    } catch (err) {
+      console.error('[recipe store] remove error:', err)
+    }
   }
 
   const setBodyType = (value: string) => {
@@ -197,8 +167,12 @@ export const useRecipeStore = defineStore('recipe', () => {
     })
   }
 
-  const addToShoppingList = (recipe: RecipeItem) => {
-    console.log('[recipe] added to shopping list:', recipe.name)
+  const addToShoppingList = async (recipe: RecipeItem) => {
+    try {
+      await recipeApi.addToShoppingList(recipe.id)
+    } catch (err) {
+      console.error('[recipe store] add to shopping list error:', err)
+    }
   }
 
   return {

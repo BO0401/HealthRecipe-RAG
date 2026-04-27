@@ -28,6 +28,11 @@ const routes = [
     path: '/ai-chat',
     name: 'AiChat',
     component: () => import('../pages/ai-chat/AiChatPage.vue')
+  },
+  {
+    path: '/profile',
+    name: 'Profile',
+    component: () => import('../pages/profile/ProfilePage.vue')
   }
 ]
 

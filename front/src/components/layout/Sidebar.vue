@@ -5,7 +5,8 @@ import {
   DataAnalysis,
   Food,
   Goods,
-  ChatLineSquare
+  ChatLineSquare,
+  User
 } from '@element-plus/icons-vue'
 
 const route = useRoute()
@@ -15,7 +16,8 @@ const menuItems = [
   { path: '/dashboard', label: '工作台', icon: DataAnalysis },
   { path: '/recipe', label: '食谱库', icon: Food },
   { path: '/inventory', label: '食材管理', icon: Goods },
-  { path: '/ai-chat', label: 'AI 营养助手', icon: ChatLineSquare }
+  { path: '/ai-chat', label: 'AI 营养助手', icon: ChatLineSquare },
+  { path: '/profile', label: '个人中心', icon: User }
 ]
 
 const activePath = computed(() => route.path)

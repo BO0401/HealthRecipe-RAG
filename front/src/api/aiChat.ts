@@ -1,3 +1,4 @@
+import http from './http'
 import { useAiSettingsStore } from '../stores/aiSettings'
 
 export interface ChatMessage {
@@ -98,41 +99,21 @@ export const chatStream = async (
 }
 
 export const uploadDocument = async (file: File): Promise<UploadedDoc> => {
-  const config = getConfig()
   const formData = new FormData()
   formData.append('file', file)
 
-  const response = await fetch('/api/ai/document/upload', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${config.apiKey}`
-    },
-    body: formData
+  const response = await http.post('/ai/document/upload', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
   })
 
-  if (!response.ok) {
-    throw new Error(`文档上传失败 (${response.status})`)
-  }
-
-  return response.json()
+  return response.data
 }
 
 export const getUploadedDocuments = async (): Promise<UploadedDoc[]> => {
-  const response = await fetch('/api/ai/documents')
-
-  if (!response.ok) {
-    throw new Error(`获取文档列表失败 (${response.status})`)
-  }
-
-  return response.json()
+  const response = await http.get('/ai/documents')
+  return response.data
 }
 
 export const deleteDocument = async (id: string): Promise<void> => {
-  const response = await fetch(`/api/ai/document/${id}`, {
-    method: 'DELETE'
-  })
-
-  if (!response.ok) {
-    throw new Error(`删除文档失败 (${response.status})`)
-  }
+  await http.delete(`/ai/document/${id}`)
 }

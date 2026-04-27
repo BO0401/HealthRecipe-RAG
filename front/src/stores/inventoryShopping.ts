@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { shoppingApi } from '../api/shopping'
+import { inventoryApi, type InventoryVO } from '../api/inventory'
 
 export interface ShoppingItem {
   id: number
@@ -34,6 +35,17 @@ const toItemStatus = (status: number): ShoppingItem['status'] =>
 
 const toApiStatus = (status: ShoppingItem['status']): number =>
   status === 'purchased' ? 1 : 0
+
+const toInventoryItem = (vo: InventoryVO): InventoryItem => ({
+  id: vo.id,
+  name: vo.ingredientName,
+  category: vo.category || '',
+  quantity: vo.quantity,
+  unit: vo.unit,
+  expiryDate: vo.expireDate,
+  addedDate: vo.createTime || new Date().toISOString().split('T')[0],
+  location: 'pantry'
+})
 
 export const useInventoryShoppingStore = defineStore('inventoryShopping', () => {
   const shoppingItems = ref<ShoppingItem[]>([])
@@ -173,18 +185,8 @@ export const useInventoryShoppingStore = defineStore('inventoryShopping', () => 
     error.value = ''
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 300))
-
-      inventoryItems.value = [
-        { id: 1, name: '鸡蛋', category: 'eggs', quantity: 6, unit: '个', expiryDate: '2025-06-10', addedDate: '2025-05-20', location: 'fridge' },
-        { id: 2, name: '番茄', category: 'vegetables', quantity: 3, unit: '个', expiryDate: '2025-05-28', addedDate: '2025-05-22', location: 'fridge' },
-        { id: 3, name: '糙米', category: 'grains', quantity: 500, unit: 'g', expiryDate: '2025-08-15', addedDate: '2025-04-10', location: 'pantry' },
-        { id: 4, name: '大蒜', category: 'vegetables', quantity: 1, unit: '头', addedDate: '2025-05-15', location: 'pantry' },
-        { id: 5, name: '生姜', category: 'vegetables', quantity: 1, unit: '块', addedDate: '2025-05-18', location: 'fridge' },
-        { id: 6, name: '酱油', category: 'condiments', quantity: 1, unit: '瓶', expiryDate: '2026-01-01', addedDate: '2025-03-01', location: 'pantry' },
-        { id: 7, name: '鸡胸肉', category: 'meat', quantity: 2, unit: '块', expiryDate: '2025-05-26', addedDate: '2025-05-23', location: 'freezer' },
-        { id: 8, name: '西兰花', category: 'vegetables', quantity: 1, unit: '颗', expiryDate: '2025-05-27', addedDate: '2025-05-24', location: 'fridge' }
-      ]
+      const res = await inventoryApi.list()
+      inventoryItems.value = res.data.map(toInventoryItem)
     } catch (err: any) {
       error.value = '获取库存列表失败，请稍后重试'
       console.error('[inventoryShopping] fetch inventory error:', err)
@@ -193,13 +195,27 @@ export const useInventoryShoppingStore = defineStore('inventoryShopping', () => 
     }
   }
 
-  const addInventoryItem = (item: Omit<InventoryItem, 'id'>) => {
-    const maxId = inventoryItems.value.reduce((max, i) => Math.max(max, i.id), 0)
-    inventoryItems.value.push({ ...item, id: maxId + 1 })
+  const addInventoryItem = async (item: Omit<InventoryItem, 'id'>) => {
+    try {
+      const res = await inventoryApi.add({
+        ingredientName: item.name,
+        quantity: item.quantity,
+        unit: item.unit,
+        expireDate: item.expiryDate
+      })
+      inventoryItems.value.push(toInventoryItem(res.data))
+    } catch (err: any) {
+      console.error('[inventoryShopping] add inventory error:', err)
+    }
   }
 
-  const removeInventoryItem = (id: number) => {
-    inventoryItems.value = inventoryItems.value.filter(i => i.id !== id)
+  const removeInventoryItem = async (id: number) => {
+    try {
+      await inventoryApi.remove(id)
+      inventoryItems.value = inventoryItems.value.filter(i => i.id !== id)
+    } catch (err: any) {
+      console.error('[inventoryShopping] remove inventory error:', err)
+    }
   }
 
   return {

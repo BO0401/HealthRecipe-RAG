@@ -1,10 +1,4 @@
-import axios from 'axios'
-
-const http = axios.create({
-  baseURL: 'http://localhost:8080',
-  timeout: 10000,
-  headers: { 'Content-Type': 'application/json' }
-})
+import http from './http'
 
 export interface ShoppingListVO {
   id: number
@@ -32,23 +26,23 @@ export interface ShoppingListUpdateDTO {
 
 export const shoppingApi = {
   list: () =>
-    http.get<ShoppingListVO[]>('/api/shopping/list'),
+    http.get<ShoppingListVO[]>('/shopping/list'),
 
   add: (data: ShoppingListCreateDTO) =>
-    http.post<ShoppingListVO>('/api/shopping/add', data),
+    http.post<ShoppingListVO>('/shopping/add', data),
 
   batchAdd: (items: ShoppingListCreateDTO[]) =>
-    http.post<ShoppingListVO[]>('/api/shopping/batch-add', items),
+    http.post<ShoppingListVO[]>('/shopping/batch-add', items),
 
   update: (data: ShoppingListUpdateDTO) =>
-    http.put<ShoppingListVO>('/api/shopping/update', data),
+    http.put<ShoppingListVO>('/shopping/update', data),
 
   remove: (id: number) =>
-    http.delete(`/api/shopping/remove/${id}`),
+    http.delete(`/shopping/remove/${id}`),
 
   clearPurchased: () =>
-    http.delete('/api/shopping/clear-purchased'),
+    http.delete('/shopping/clear-purchased'),
 
   generateFromRecipes: (recipeIds: number[]) =>
-    http.post<ShoppingListVO[]>('/api/shopping/generate', { recipeIds })
+    http.post<ShoppingListVO[]>('/shopping/generate', { recipeIds })
 }
