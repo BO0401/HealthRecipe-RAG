@@ -1,20 +1,19 @@
 <script setup lang="ts">
-import { reactive } from 'vue'
-import { Timer, Refrigerator, List, Star } from '@element-plus/icons-vue'
+import { onMounted } from 'vue'
+import { useDashboardStore } from '../../stores/dashboard'
 
-const metrics = reactive([
-  { title: '今日热量', value: '1,240', unit: 'kcal', icon: Timer, color: '#409EFF', trend: '较昨日 -5%' },
-  { title: '剩余食材', value: '12', unit: '件', icon: Refrigerator, color: '#67C23A', trend: '3件即将过期' },
-  { title: '待办事项', value: '3', unit: '项', icon: List, color: '#E6A23C', trend: '包含 1 个高优先级' },
-  { title: '健康评分', value: '88', unit: '分', icon: Star, color: '#F56C6C', trend: '状态极佳' }
-])
+const dashboardStore = useDashboardStore()
 
-console.log('[dashboard] metric cards loaded', metrics.length)
+onMounted(() => {
+  dashboardStore.fetchMetrics()
+})
+
+console.log('[dashboard] metric cards loaded with Pinia store')
 </script>
 
 <template>
   <div class="metric-grid">
-    <div v-for="item in metrics" :key="item.title" class="metric-card">
+    <div v-for="item in dashboardStore.metrics" :key="item.title" class="metric-card">
       <div class="metric-content">
         <div class="metric-info">
           <div class="metric-title">{{ item.title }}</div>
