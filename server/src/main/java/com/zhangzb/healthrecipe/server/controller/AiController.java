@@ -1,9 +1,11 @@
 package com.zhangzb.healthrecipe.server.controller;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.zhangzb.healthrecipe.server.config.Result;
 import com.zhangzb.healthrecipe.server.entity.SysVectorStore;
 import com.zhangzb.healthrecipe.server.service.SysVectorStoreService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -13,9 +15,9 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
+@Tag(name = "AI 知识库", description = "RAG 文档上传、管理及向量存储")
 @RestController
 @RequestMapping("/api/ai")
 public class AiController {
@@ -23,8 +25,12 @@ public class AiController {
     @Autowired
     private SysVectorStoreService vectorStoreService;
 
+    @Operation(summary = "上传文档", description = "上传文本文件到知识库")
     @PostMapping("/document/upload")
-    public Result<UploadedDocVO> uploadDocument(@RequestParam("file") MultipartFile file) {
+    public Result<UploadedDocVO> uploadDocument(@Parameter(description = "上传的文件") @RequestParam("file") MultipartFile file) {
+        if (file.isEmpty()) {
+            return Result.error(400, "上传文件不能为空");
+        }
         try {
             String content = new BufferedReader(
                     new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8)
@@ -49,11 +55,10 @@ public class AiController {
         }
     }
 
+    @Operation(summary = "获取文档列表")
     @GetMapping("/documents")
     public Result<List<UploadedDocVO>> getDocuments() {
-        List<SysVectorStore> list = vectorStoreService.list(
-                new LambdaQueryWrapper<SysVectorStore>().orderByDesc(SysVectorStore::getCreateTime)
-        );
+        List<SysVectorStore> list = vectorStoreService.listAll();
         List<UploadedDocVO> vos = list.stream().map(doc -> {
             UploadedDocVO vo = new UploadedDocVO();
             vo.setId(doc.getId().toString());
@@ -65,8 +70,9 @@ public class AiController {
         return Result.success(vos);
     }
 
+    @Operation(summary = "删除文档")
     @DeleteMapping("/document/{id}")
-    public Result<Void> deleteDocument(@PathVariable Long id) {
+    public Result<Void> deleteDocument(@Parameter(description = "文档ID") @PathVariable Long id) {
         if (!vectorStoreService.removeById(id)) {
             return Result.error(404, "文档不存在");
         }

@@ -11,14 +11,18 @@ import com.zhangzb.healthrecipe.server.entity.SysShoppingList;
 import com.zhangzb.healthrecipe.server.service.RelRecipeIngredientService;
 import com.zhangzb.healthrecipe.server.service.SysRecipeService;
 import com.zhangzb.healthrecipe.server.service.SysShoppingListService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Tag(name = "食谱管理", description = "食谱的增删改查、推荐及加入采购清单")
 @RestController
 @RequestMapping("/api/recipe")
 public class RecipeController {
@@ -32,30 +36,23 @@ public class RecipeController {
     @Autowired
     private SysShoppingListService shoppingListService;
 
+    @Operation(summary = "获取食谱列表", description = "根据关键词搜索食谱")
     @GetMapping("/list")
-    public Result<List<RecipeVO>> list(RecipeQueryDTO params) {
-        LambdaQueryWrapper<SysRecipe> wrapper = new LambdaQueryWrapper<>();
-        if (params.getKeyword() != null && !params.getKeyword().isEmpty()) {
-            wrapper.like(SysRecipe::getName, params.getKeyword());
-        }
-        wrapper.orderByDesc(SysRecipe::getCreateTime);
-        List<SysRecipe> list = recipeService.list(wrapper);
+    public Result<List<RecipeVO>> list(@Valid RecipeQueryDTO params) {
+        List<SysRecipe> list = recipeService.searchByKeyword(params.getKeyword());
         return Result.success(toVOList(list));
     }
 
+    @Operation(summary = "推荐食谱", description = "根据体质和过敏原推荐食谱")
     @GetMapping("/recommend")
-    public Result<List<RecipeVO>> recommend(RecipeQueryDTO params) {
-        LambdaQueryWrapper<SysRecipe> wrapper = new LambdaQueryWrapper<>();
-        if (params.getKeyword() != null && !params.getKeyword().isEmpty()) {
-            wrapper.like(SysRecipe::getName, params.getKeyword());
-        }
-        wrapper.orderByDesc(SysRecipe::getCreateTime);
-        List<SysRecipe> list = recipeService.list(wrapper);
+    public Result<List<RecipeVO>> recommend(@Valid RecipeQueryDTO params) {
+        List<SysRecipe> list = recipeService.recommendByBodyType(params.getBodyType(), params.getAllergens());
         return Result.success(toVOList(list));
     }
 
+    @Operation(summary = "获取食谱详情")
     @GetMapping("/{id}")
-    public Result<RecipeVO> getById(@PathVariable Long id) {
+    public Result<RecipeVO> getById(@Parameter(description = "食谱ID") @PathVariable Long id) {
         SysRecipe recipe = recipeService.getById(id);
         if (recipe == null) {
             return Result.error(404, "食谱不存在");
@@ -63,8 +60,9 @@ public class RecipeController {
         return Result.success(toVO(recipe));
     }
 
+    @Operation(summary = "创建食谱")
     @PostMapping("/create")
-    public Result<RecipeVO> create(@RequestBody RecipeCreateDTO dto) {
+    public Result<RecipeVO> create(@Valid @RequestBody RecipeCreateDTO dto) {
         SysRecipe recipe = new SysRecipe();
         recipe.setName(dto.getName());
         recipe.setCoverImg(dto.getCoverImg());
@@ -75,8 +73,9 @@ public class RecipeController {
         return Result.success(toVO(recipe));
     }
 
+    @Operation(summary = "更新食谱")
     @PutMapping("/{id}")
-    public Result<RecipeVO> update(@PathVariable Long id, @RequestBody RecipeCreateDTO dto) {
+    public Result<RecipeVO> update(@Parameter(description = "食谱ID") @PathVariable Long id, @Valid @RequestBody RecipeCreateDTO dto) {
         SysRecipe recipe = recipeService.getById(id);
         if (recipe == null) {
             return Result.error(404, "食谱不存在");
@@ -90,16 +89,18 @@ public class RecipeController {
         return Result.success(toVO(recipe));
     }
 
+    @Operation(summary = "删除食谱")
     @DeleteMapping("/{id}")
-    public Result<Void> remove(@PathVariable Long id) {
+    public Result<Void> remove(@Parameter(description = "食谱ID") @PathVariable Long id) {
         if (!recipeService.removeById(id)) {
             return Result.error(404, "食谱不存在");
         }
         return Result.success();
     }
 
+    @Operation(summary = "将食谱加入采购清单", description = "根据食谱关联的食材生成采购项")
     @PostMapping("/{id}/add-to-shopping-list")
-    public Result<Void> addToShoppingList(@PathVariable Long id) {
+    public Result<Void> addToShoppingList(@Parameter(description = "食谱ID") @PathVariable Long id) {
         SysRecipe recipe = recipeService.getById(id);
         if (recipe == null) {
             return Result.error(404, "食谱不存在");

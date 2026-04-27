@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, reactive } from 'vue'
-import { profileApi, type UserProfile, type InventoryItem } from '../api/profile'
+import { profileApi } from '../api/profile'
+import type { UserProfile, InventoryItem } from '../types/api'
 
 export const useProfileStore = defineStore('profile', () => {
   const loading = ref(false)
@@ -32,8 +33,7 @@ export const useProfileStore = defineStore('profile', () => {
     error.value = ''
 
     try {
-      const res = await profileApi.get()
-      const data = res.data
+      const data = await profileApi.get()
 
       user.height = data.user.height
       user.weight = data.user.weight

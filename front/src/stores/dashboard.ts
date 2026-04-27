@@ -26,8 +26,7 @@ export const useDashboardStore = defineStore('dashboard', () => {
 
   const fetchMetrics = async () => {
     try {
-      const res = await dashboardApi.getMetrics()
-      const data = res.data.metrics
+      const data = await dashboardApi.getMetrics()
 
       metrics.value = [
         {

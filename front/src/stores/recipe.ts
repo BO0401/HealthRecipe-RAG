@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, reactive } from 'vue'
-import { recipeApi, type RecipeVO } from '../api/recipe'
+import { recipeApi } from '../api/recipe'
+import type { RecipeVO } from '../types/api'
 
 export interface RecipeItem {
   id: number
@@ -68,8 +69,8 @@ export const useRecipeStore = defineStore('recipe', () => {
       if (filter.allergens.length > 0) params.allergens = filter.allergens
       if (filter.keyword) params.keyword = filter.keyword
 
-      const res = await recipeApi.recommend(params)
-      recipes.value = res.data.map(toRecipeItem)
+      const data = await recipeApi.recommend(params)
+      recipes.value = data.map(toRecipeItem)
     } catch (err) {
       error.value = '获取食谱失败，请稍后重试'
       console.error('[recipe store] fetch error:', err)
@@ -80,7 +81,7 @@ export const useRecipeStore = defineStore('recipe', () => {
 
   const addRecipe = async (recipe: Omit<RecipeItem, 'id'>) => {
     try {
-      const res = await recipeApi.create({
+      const data = await recipeApi.create({
         name: recipe.name,
         coverImg: recipe.image,
         calories: recipe.calories,
@@ -88,7 +89,7 @@ export const useRecipeStore = defineStore('recipe', () => {
         tags: recipe.tags,
         description: recipe.description
       })
-      recipes.value.push(toRecipeItem(res.data))
+      recipes.value.push(toRecipeItem(data))
     } catch (err) {
       console.error('[recipe store] add error:', err)
     }

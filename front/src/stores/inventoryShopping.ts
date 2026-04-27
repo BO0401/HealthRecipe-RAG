@@ -1,7 +1,8 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { shoppingApi } from '../api/shopping'
-import { inventoryApi, type InventoryVO } from '../api/inventory'
+import { inventoryApi } from '../api/inventory'
+import type { InventoryVO } from '../types/api'
 
 export interface ShoppingItem {
   id: number
@@ -77,8 +78,7 @@ export const useInventoryShoppingStore = defineStore('inventoryShopping', () => 
     error.value = ''
 
     try {
-      const res = await shoppingApi.list()
-      const list = res.data
+      const list = await shoppingApi.list()
 
       shoppingItems.value = list.map(item => ({
         id: item.id,
@@ -132,14 +132,13 @@ export const useInventoryShoppingStore = defineStore('inventoryShopping', () => 
 
   const addItemsFromRecipe = async (ingredients: { name: string; quantity: number; unit: string }[]) => {
     try {
-      const res = await shoppingApi.batchAdd(
+      const created = await shoppingApi.batchAdd(
         ingredients.map(ing => ({
           ingredientName: ing.name,
           quantity: ing.quantity,
           unit: ing.unit
         }))
       )
-      const created = res.data
       const newItems: ShoppingItem[] = created.map(item => ({
         id: item.id,
         name: item.ingredientName,
@@ -160,8 +159,7 @@ export const useInventoryShoppingStore = defineStore('inventoryShopping', () => 
     error.value = ''
 
     try {
-      const res = await shoppingApi.generateFromRecipes(recipeIds)
-      const list = res.data
+      const list = await shoppingApi.generateFromRecipes(recipeIds)
 
       shoppingItems.value = list.map(item => ({
         id: item.id,
@@ -185,8 +183,8 @@ export const useInventoryShoppingStore = defineStore('inventoryShopping', () => 
     error.value = ''
 
     try {
-      const res = await inventoryApi.list()
-      inventoryItems.value = res.data.map(toInventoryItem)
+      const list = await inventoryApi.list()
+      inventoryItems.value = list.map(toInventoryItem)
     } catch (err: any) {
       error.value = '获取库存列表失败，请稍后重试'
       console.error('[inventoryShopping] fetch inventory error:', err)
@@ -197,13 +195,13 @@ export const useInventoryShoppingStore = defineStore('inventoryShopping', () => 
 
   const addInventoryItem = async (item: Omit<InventoryItem, 'id'>) => {
     try {
-      const res = await inventoryApi.add({
+      const data = await inventoryApi.add({
         ingredientName: item.name,
         quantity: item.quantity,
         unit: item.unit,
         expireDate: item.expiryDate
       })
-      inventoryItems.value.push(toInventoryItem(res.data))
+      inventoryItems.value.push(toInventoryItem(data))
     } catch (err: any) {
       console.error('[inventoryShopping] add inventory error:', err)
     }

@@ -1,6 +1,5 @@
 package com.zhangzb.healthrecipe.server.controller;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.zhangzb.healthrecipe.server.config.Result;
 import com.zhangzb.healthrecipe.server.dto.InventoryCreateDTO;
 import com.zhangzb.healthrecipe.server.dto.InventoryUpdateDTO;
@@ -9,14 +8,17 @@ import com.zhangzb.healthrecipe.server.entity.SysIngredient;
 import com.zhangzb.healthrecipe.server.entity.SysInventory;
 import com.zhangzb.healthrecipe.server.service.SysIngredientService;
 import com.zhangzb.healthrecipe.server.service.SysInventoryService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Tag(name = "库存管理", description = "家庭库存的增删改查及过期预警")
 @RestController
 @RequestMapping("/api/inventory")
 public class InventoryController {
@@ -27,31 +29,35 @@ public class InventoryController {
     @Autowired
     private SysIngredientService ingredientService;
 
+    @Operation(summary = "获取库存列表")
     @GetMapping("/list")
     public Result<List<InventoryVO>> list() {
-        List<SysInventory> list = inventoryService.list(
-                new LambdaQueryWrapper<SysInventory>().orderByDesc(SysInventory::getCreateTime)
-        );
+        List<SysInventory> list = inventoryService.listByUserId(1L);
         return Result.success(toVOList(list));
     }
 
+    @Operation(summary = "添加库存")
     @PostMapping("/add")
-    public Result<InventoryVO> add(@RequestBody InventoryCreateDTO dto) {
+    public Result<InventoryVO> add(@Valid @RequestBody InventoryCreateDTO dto) {
+        SysIngredient ingredient = ingredientService.getOrCreate(dto.getIngredientName(), null, dto.getUnit());
+
         SysInventory inventory = new SysInventory();
         inventory.setUserId(1L);
-        inventory.setIngredientId(0L);
+        inventory.setIngredientId(ingredient.getId());
         inventory.setQuantity(dto.getQuantity());
         inventory.setUnit(dto.getUnit());
         inventory.setExpireDate(dto.getExpireDate());
         inventoryService.save(inventory);
 
         InventoryVO vo = toVO(inventory);
-        vo.setIngredientName(dto.getIngredientName());
+        vo.setIngredientName(ingredient.getName());
+        vo.setCategory(ingredient.getCategory());
         return Result.success(vo);
     }
 
+    @Operation(summary = "更新库存")
     @PutMapping("/update")
-    public Result<InventoryVO> update(@RequestBody InventoryUpdateDTO dto) {
+    public Result<InventoryVO> update(@Valid @RequestBody InventoryUpdateDTO dto) {
         SysInventory inventory = inventoryService.getById(dto.getId());
         if (inventory == null) {
             return Result.error(404, "库存项不存在");
@@ -63,25 +69,19 @@ public class InventoryController {
         return Result.success(toVO(inventory));
     }
 
+    @Operation(summary = "删除库存")
     @DeleteMapping("/remove/{id}")
-    public Result<Void> remove(@PathVariable Long id) {
+    public Result<Void> remove(@Parameter(description = "库存ID") @PathVariable Long id) {
         if (!inventoryService.removeById(id)) {
             return Result.error(404, "库存项不存在");
         }
         return Result.success();
     }
 
+    @Operation(summary = "获取即将过期的库存", description = "返回3天内过期的库存项")
     @GetMapping("/expiring-soon")
     public Result<List<InventoryVO>> expiringSoon() {
-        LocalDate now = LocalDate.now();
-        LocalDate threshold = now.plus(3, ChronoUnit.DAYS);
-        List<SysInventory> list = inventoryService.list(
-                new LambdaQueryWrapper<SysInventory>()
-                        .isNotNull(SysInventory::getExpireDate)
-                        .le(SysInventory::getExpireDate, threshold)
-                        .ge(SysInventory::getExpireDate, now)
-                        .orderByAsc(SysInventory::getExpireDate)
-        );
+        List<SysInventory> list = inventoryService.findExpiringSoon(1L, 3);
         return Result.success(toVOList(list));
     }
 

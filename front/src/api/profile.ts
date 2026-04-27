@@ -1,25 +1,15 @@
 import http from './http'
-
-export interface UserProfile {
-  height: number
-  weight: number
-  allergens: string[]
-}
-
-export interface InventoryItem {
-  name: string
-  quantity: number
-}
-
-export interface ProfileData {
-  user: UserProfile
-  inventory: InventoryItem[]
-}
+import { ProfileDataSchema, type ProfileData } from '../types/api'
 
 export const profileApi = {
-  get: () =>
-    http.get<ProfileData>('/profile'),
+  get: async (): Promise<ProfileData> => {
+    const data = await http.get<ProfileData>('/profile')
+    return ProfileDataSchema.parse(data)
+  },
 
-  save: (data: ProfileData) =>
-    http.put<ProfileData>('/profile', data)
+  save: async (data: ProfileData): Promise<ProfileData> => {
+    ProfileDataSchema.parse(data)
+    const result = await http.put<ProfileData>('/profile', data)
+    return ProfileDataSchema.parse(result)
+  }
 }

@@ -1,17 +1,6 @@
 import http from './http'
 import { useAiSettingsStore } from '../stores/aiSettings'
-
-export interface ChatMessage {
-  role: 'system' | 'user' | 'assistant'
-  content: string
-}
-
-export interface UploadedDoc {
-  id: string
-  name: string
-  size: number
-  uploadTime: string
-}
+import { UploadedDocSchema, type ChatMessage, type UploadedDoc } from '../types/api'
 
 const getConfig = () => {
   const store = useAiSettingsStore()
@@ -106,12 +95,12 @@ export const uploadDocument = async (file: File): Promise<UploadedDoc> => {
     headers: { 'Content-Type': 'multipart/form-data' }
   })
 
-  return response.data
+  return UploadedDocSchema.parse(response)
 }
 
 export const getUploadedDocuments = async (): Promise<UploadedDoc[]> => {
-  const response = await http.get('/ai/documents')
-  return response.data
+  const response = await http.get<UploadedDoc[]>('/ai/documents')
+  return response.map(item => UploadedDocSchema.parse(item))
 }
 
 export const deleteDocument = async (id: string): Promise<void> => {

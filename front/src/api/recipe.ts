@@ -1,49 +1,32 @@
 import http from './http'
-
-export interface RecipeVO {
-  id: number
-  name: string
-  coverImg: string
-  calories: number
-  cookTime: number
-  difficulty: string
-  tags: string[]
-  description: string
-  steps: string
-}
-
-export interface RecipeQueryDTO {
-  bodyType?: string
-  allergens?: string[]
-  keyword?: string
-}
-
-export interface RecipeCreateDTO {
-  name: string
-  coverImg?: string
-  calories?: number
-  cookTime?: number
-  difficulty?: string
-  tags?: string[]
-  description?: string
-  steps?: string
-}
+import { RecipeVOSchema, RecipeCreateDTOSchema, type RecipeVO, type RecipeQueryDTO, type RecipeCreateDTO } from '../types/api'
 
 export const recipeApi = {
-  list: (params?: RecipeQueryDTO) =>
-    http.get<RecipeVO[]>('/recipe/list', { params }),
+  list: async (params?: RecipeQueryDTO): Promise<RecipeVO[]> => {
+    const data = await http.get<RecipeVO[]>('/recipe/list', { params })
+    return data.map(item => RecipeVOSchema.parse(item))
+  },
 
-  recommend: (params?: RecipeQueryDTO) =>
-    http.get<RecipeVO[]>('/recipe/recommend', { params }),
+  recommend: async (params?: RecipeQueryDTO): Promise<RecipeVO[]> => {
+    const data = await http.get<RecipeVO[]>('/recipe/recommend', { params })
+    return data.map(item => RecipeVOSchema.parse(item))
+  },
 
-  getById: (id: number) =>
-    http.get<RecipeVO>(`/recipe/${id}`),
+  getById: async (id: number): Promise<RecipeVO> => {
+    const data = await http.get<RecipeVO>(`/recipe/${id}`)
+    return RecipeVOSchema.parse(data)
+  },
 
-  create: (data: RecipeCreateDTO) =>
-    http.post<RecipeVO>('/recipe/create', data),
+  create: async (dto: RecipeCreateDTO): Promise<RecipeVO> => {
+    RecipeCreateDTOSchema.parse(dto)
+    const data = await http.post<RecipeVO>('/recipe/create', dto)
+    return RecipeVOSchema.parse(data)
+  },
 
-  update: (id: number, data: Partial<RecipeCreateDTO>) =>
-    http.put<RecipeVO>(`/recipe/${id}`, data),
+  update: async (id: number, dto: Partial<RecipeCreateDTO>): Promise<RecipeVO> => {
+    const data = await http.put<RecipeVO>(`/recipe/${id}`, dto)
+    return RecipeVOSchema.parse(data)
+  },
 
   remove: (id: number) =>
     http.delete(`/recipe/${id}`),

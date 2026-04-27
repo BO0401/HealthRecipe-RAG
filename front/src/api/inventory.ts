@@ -1,45 +1,28 @@
 import http from './http'
-
-export interface InventoryVO {
-  id: number
-  userId: number
-  ingredientId: number
-  ingredientName: string
-  category: string
-  quantity: number
-  unit: string
-  expireDate?: string
-  createTime?: string
-  updateTime?: string
-}
-
-export interface InventoryCreateDTO {
-  ingredientName: string
-  quantity: number
-  unit: string
-  expireDate?: string
-}
-
-export interface InventoryUpdateDTO {
-  id: number
-  quantity?: number
-  unit?: string
-  expireDate?: string
-}
+import { InventoryVOSchema, InventoryCreateDTOSchema, type InventoryVO, type InventoryCreateDTO, type InventoryUpdateDTO } from '../types/api'
 
 export const inventoryApi = {
-  list: () =>
-    http.get<InventoryVO[]>('/inventory/list'),
+  list: async (): Promise<InventoryVO[]> => {
+    const data = await http.get<InventoryVO[]>('/inventory/list')
+    return data.map(item => InventoryVOSchema.parse(item))
+  },
 
-  add: (data: InventoryCreateDTO) =>
-    http.post<InventoryVO>('/inventory/add', data),
+  add: async (dto: InventoryCreateDTO): Promise<InventoryVO> => {
+    InventoryCreateDTOSchema.parse(dto)
+    const data = await http.post<InventoryVO>('/inventory/add', dto)
+    return InventoryVOSchema.parse(data)
+  },
 
-  update: (data: InventoryUpdateDTO) =>
-    http.put<InventoryVO>('/inventory/update', data),
+  update: async (dto: InventoryUpdateDTO): Promise<InventoryVO> => {
+    const data = await http.put<InventoryVO>('/inventory/update', dto)
+    return InventoryVOSchema.parse(data)
+  },
 
   remove: (id: number) =>
     http.delete(`/inventory/remove/${id}`),
 
-  getExpiringSoon: () =>
-    http.get<InventoryVO[]>('/inventory/expiring-soon')
+  getExpiringSoon: async (): Promise<InventoryVO[]> => {
+    const data = await http.get<InventoryVO[]>('/inventory/expiring-soon')
+    return data.map(item => InventoryVOSchema.parse(item))
+  }
 }

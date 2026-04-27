@@ -1,41 +1,28 @@
 import http from './http'
-
-export interface ShoppingListVO {
-  id: number
-  userId: number
-  ingredientName: string
-  quantity: number
-  unit: string
-  status: number
-  createTime?: string
-  updateTime?: string
-}
-
-export interface ShoppingListCreateDTO {
-  ingredientName: string
-  quantity: number
-  unit: string
-}
-
-export interface ShoppingListUpdateDTO {
-  id: number
-  quantity?: number
-  unit?: string
-  status?: number
-}
+import { ShoppingListVOSchema, ShoppingListCreateDTOSchema, type ShoppingListVO, type ShoppingListCreateDTO, type ShoppingListUpdateDTO } from '../types/api'
 
 export const shoppingApi = {
-  list: () =>
-    http.get<ShoppingListVO[]>('/shopping/list'),
+  list: async (): Promise<ShoppingListVO[]> => {
+    const data = await http.get<ShoppingListVO[]>('/shopping/list')
+    return data.map(item => ShoppingListVOSchema.parse(item))
+  },
 
-  add: (data: ShoppingListCreateDTO) =>
-    http.post<ShoppingListVO>('/shopping/add', data),
+  add: async (dto: ShoppingListCreateDTO): Promise<ShoppingListVO> => {
+    ShoppingListCreateDTOSchema.parse(dto)
+    const data = await http.post<ShoppingListVO>('/shopping/add', dto)
+    return ShoppingListVOSchema.parse(data)
+  },
 
-  batchAdd: (items: ShoppingListCreateDTO[]) =>
-    http.post<ShoppingListVO[]>('/shopping/batch-add', items),
+  batchAdd: async (items: ShoppingListCreateDTO[]): Promise<ShoppingListVO[]> => {
+    items.forEach(item => ShoppingListCreateDTOSchema.parse(item))
+    const data = await http.post<ShoppingListVO[]>('/shopping/batch-add', items)
+    return data.map(item => ShoppingListVOSchema.parse(item))
+  },
 
-  update: (data: ShoppingListUpdateDTO) =>
-    http.put<ShoppingListVO>('/shopping/update', data),
+  update: async (dto: ShoppingListUpdateDTO): Promise<ShoppingListVO> => {
+    const data = await http.put<ShoppingListVO>('/shopping/update', dto)
+    return ShoppingListVOSchema.parse(data)
+  },
 
   remove: (id: number) =>
     http.delete(`/shopping/remove/${id}`),
@@ -43,6 +30,8 @@ export const shoppingApi = {
   clearPurchased: () =>
     http.delete('/shopping/clear-purchased'),
 
-  generateFromRecipes: (recipeIds: number[]) =>
-    http.post<ShoppingListVO[]>('/shopping/generate', { recipeIds })
+  generateFromRecipes: async (recipeIds: number[]): Promise<ShoppingListVO[]> => {
+    const data = await http.post<ShoppingListVO[]>('/shopping/generate', { recipeIds })
+    return data.map(item => ShoppingListVOSchema.parse(item))
+  }
 }

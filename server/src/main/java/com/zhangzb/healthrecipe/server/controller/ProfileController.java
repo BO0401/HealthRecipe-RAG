@@ -7,12 +7,16 @@ import com.zhangzb.healthrecipe.server.entity.SysInventory;
 import com.zhangzb.healthrecipe.server.entity.SysUser;
 import com.zhangzb.healthrecipe.server.service.SysInventoryService;
 import com.zhangzb.healthrecipe.server.service.SysUserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Tag(name = "个人中心", description = "用户资料与库存管理")
 @RestController
 @RequestMapping("/api/profile")
 public class ProfileController {
@@ -23,9 +27,10 @@ public class ProfileController {
     @Autowired
     private SysInventoryService inventoryService;
 
+    @Operation(summary = "获取用户资料与库存")
     @GetMapping
     public Result<ProfileDataDTO> get() {
-        SysUser user = userService.getById(1L);
+        SysUser user = userService.getDefaultUser();
         if (user == null) {
             return Result.success(new ProfileDataDTO());
         }
@@ -41,9 +46,7 @@ public class ProfileController {
         }
         dto.setUser(profile);
 
-        List<SysInventory> inventoryList = inventoryService.list(
-                new LambdaQueryWrapper<SysInventory>().eq(SysInventory::getUserId, 1L)
-        );
+        List<SysInventory> inventoryList = inventoryService.listByUserId(user.getId());
         List<ProfileDataDTO.InventoryItem> inventoryItems = inventoryList.stream().map(item -> {
             ProfileDataDTO.InventoryItem inv = new ProfileDataDTO.InventoryItem();
             inv.setName(item.getIngredientId().toString());
@@ -55,12 +58,12 @@ public class ProfileController {
         return Result.success(dto);
     }
 
+    @Operation(summary = "保存用户资料与库存")
     @PutMapping
-    public Result<ProfileDataDTO> save(@RequestBody ProfileDataDTO dto) {
-        SysUser user = userService.getById(1L);
+    public Result<ProfileDataDTO> save(@Valid @RequestBody ProfileDataDTO dto) {
+        SysUser user = userService.getDefaultUser();
         if (user == null) {
             user = new SysUser();
-            user.setId(1L);
             user.setUsername("default");
             user.setPassword("default");
         }
@@ -81,10 +84,10 @@ public class ProfileController {
         }
 
         if (dto.getInventory() != null) {
-            inventoryService.remove(new LambdaQueryWrapper<SysInventory>().eq(SysInventory::getUserId, 1L));
+            inventoryService.remove(new LambdaQueryWrapper<SysInventory>().eq(SysInventory::getUserId, user.getId()));
             for (ProfileDataDTO.InventoryItem invItem : dto.getInventory()) {
                 SysInventory inv = new SysInventory();
-                inv.setUserId(1L);
+                inv.setUserId(user.getId());
                 inv.setQuantity(invItem.getQuantity());
                 inv.setUnit("个");
                 inventoryService.save(inv);

@@ -1,18 +1,9 @@
 import http from './http'
-
-export interface DashboardMetricsVO {
-  todayCalories: number
-  remainingIngredients: number
-  expiringCount: number
-  pendingTasks: number
-  healthScore: number
-}
-
-export interface DashboardData {
-  metrics: DashboardMetricsVO
-}
+import { DashboardMetricsVOSchema, type DashboardMetricsVO } from '../types/api'
 
 export const dashboardApi = {
-  getMetrics: () =>
-    http.get<DashboardData>('/dashboard/metrics')
+  getMetrics: async (): Promise<DashboardMetricsVO> => {
+    const data = await http.get<DashboardMetricsVO>('/dashboard/metrics')
+    return DashboardMetricsVOSchema.parse(data)
+  }
 }
