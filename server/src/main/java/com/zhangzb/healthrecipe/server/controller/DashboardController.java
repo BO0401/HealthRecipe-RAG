@@ -4,7 +4,6 @@ import com.zhangzb.healthrecipe.server.config.Result;
 import com.zhangzb.healthrecipe.server.dto.DashboardMetricsVO;
 import com.zhangzb.healthrecipe.server.service.SysInventoryService;
 import com.zhangzb.healthrecipe.server.service.SysShoppingListService;
-import com.zhangzb.healthrecipe.server.service.SysUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,9 +21,6 @@ public class DashboardController {
 
     @Autowired
     private SysShoppingListService shoppingListService;
-
-    @Autowired
-    private SysUserService userService;
 
     @Operation(summary = "获取仪表盘指标", description = "返回今日热量、剩余食材、过期数量、待办任务、健康评分")
     @GetMapping("/metrics")

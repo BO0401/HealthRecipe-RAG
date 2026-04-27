@@ -31,10 +31,10 @@ public class AiController {
         if (file.isEmpty()) {
             return Result.error(400, "上传文件不能为空");
         }
-        try {
-            String content = new BufferedReader(
-                    new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8)
-            ).lines().collect(Collectors.joining("\n"));
+        try (BufferedReader reader = new BufferedReader(
+                new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8)
+        )) {
+            String content = reader.lines().collect(Collectors.joining("\n"));
 
             SysVectorStore doc = new SysVectorStore();
             doc.setContent(content);
