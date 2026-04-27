@@ -12,7 +12,7 @@ onMounted(() => {
 })
 
 const handleAddToList = (recipe: RecipeItem) => {
-  console.log('[recipe page] add to list:', recipe.name)
+  recipeStore.addToShoppingList(recipe)
 }
 </script>
 
@@ -71,17 +71,19 @@ const handleAddToList = (recipe: RecipeItem) => {
 
 <style scoped>
 .recipe-page {
+  width: 100%;
   height: 100%;
   display: flex;
   flex-direction: column;
-  padding: 20px;
+  padding: 24px;
   background: #f0f2f5;
-  overflow-y: auto;
   box-sizing: border-box;
+  overflow: hidden;
 }
 
 .page-header {
   margin-bottom: 20px;
+  flex-shrink: 0;
 }
 
 .page-title {

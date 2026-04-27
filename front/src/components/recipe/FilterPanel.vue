@@ -2,13 +2,19 @@
 import { useRecipeStore } from '../../stores/recipe'
 
 const recipeStore = useRecipeStore()
+
+const handleReset = () => {
+  recipeStore.setBodyType('')
+  recipeStore.setAllergens([])
+  recipeStore.setKeyword('')
+}
 </script>
 
 <template>
   <div class="filter-panel">
     <div class="filter-header">
       <span class="filter-title">筛选条件</span>
-      <el-button text size="small" @click="recipeStore.fetchRecipes()">
+      <el-button text size="small" @click="handleReset">
         重置
       </el-button>
     </div>
@@ -21,6 +27,7 @@ const recipeStore = useRecipeStore()
         :model-value="recipeStore.filter.bodyType"
         placeholder="选择身体类型"
         class="filter-select"
+        clearable
         @update:model-value="recipeStore.setBodyType"
       >
         <el-option
@@ -43,7 +50,6 @@ const recipeStore = useRecipeStore()
           v-for="opt in recipeStore.allergenOptions"
           :key="opt.value"
           :label="opt.value"
-          :value="opt.value"
         >
           {{ opt.label }}
         </el-checkbox>
@@ -57,6 +63,7 @@ const recipeStore = useRecipeStore()
         placeholder="搜索食谱名称、描述..."
         clearable
         @input="recipeStore.setKeyword"
+        @clear="recipeStore.setKeyword('')"
       />
     </div>
 

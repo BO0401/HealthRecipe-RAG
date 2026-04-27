@@ -52,7 +52,6 @@ export const useRecipeStore = defineStore('recipe', () => {
     error.value = ''
 
     try {
-      // 模拟 API 调用，后续替换为真实后端接口
       await new Promise(resolve => setTimeout(resolve, 600))
 
       const mockData: RecipeItem[] = [
@@ -121,6 +120,19 @@ export const useRecipeStore = defineStore('recipe', () => {
     }
   }
 
+  const addRecipe = (recipe: Omit<RecipeItem, 'id'>) => {
+    const maxId = recipes.value.reduce((max, r) => Math.max(max, r.id), 0)
+    const newRecipe: RecipeItem = {
+      ...recipe,
+      id: maxId + 1
+    }
+    recipes.value.push(newRecipe)
+  }
+
+  const removeRecipe = (id: number) => {
+    recipes.value = recipes.value.filter(r => r.id !== id)
+  }
+
   const setBodyType = (value: string) => {
     filter.bodyType = value
   }
@@ -150,6 +162,29 @@ export const useRecipeStore = defineStore('recipe', () => {
         }
       }
 
+      if (filter.allergens.length > 0) {
+        const allergenTagMap: Record<string, string[]> = {
+          milk: ['牛奶', '乳制品', '奶油', '奶酪'],
+          egg: ['鸡蛋', '蛋'],
+          peanut: ['花生'],
+          soy: ['大豆', '豆腐', '豆浆', '毛豆'],
+          wheat: ['小麦', '面粉', '全麦', '全谷物', '面条', '面包'],
+          fish: ['鱼', '三文鱼', '金枪鱼', '鳕鱼'],
+          shellfish: ['虾', '蟹', '贝', '贝壳'],
+          tree_nut: ['坚果', '杏仁', '核桃', '腰果']
+        }
+        const hasAllergen = filter.allergens.some(allergen => {
+          const tags = allergenTagMap[allergen]
+          if (!tags) return false
+          return tags.some(tag =>
+            recipe.name.includes(tag) ||
+            recipe.description.includes(tag) ||
+            recipe.tags.some(t => t.includes(tag))
+          )
+        })
+        if (hasAllergen) return false
+      }
+
       if (filter.keyword) {
         const kw = filter.keyword.toLowerCase()
         const matchName = recipe.name.toLowerCase().includes(kw)
@@ -164,7 +199,6 @@ export const useRecipeStore = defineStore('recipe', () => {
 
   const addToShoppingList = (recipe: RecipeItem) => {
     console.log('[recipe] added to shopping list:', recipe.name)
-    // 后续可集成到采购清单 store
   }
 
   return {
@@ -175,6 +209,8 @@ export const useRecipeStore = defineStore('recipe', () => {
     bodyTypeOptions,
     allergenOptions,
     fetchRecipes,
+    addRecipe,
+    removeRecipe,
     setBodyType,
     setAllergens,
     setKeyword,
