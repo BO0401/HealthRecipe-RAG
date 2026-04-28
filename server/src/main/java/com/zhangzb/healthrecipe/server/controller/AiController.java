@@ -40,7 +40,7 @@ public class AiController {
     @Value("${ai.deepseek.base-url:https://api.deepseek.com}")
     private String deepseekBaseUrl;
 
-    @Value("${ai.deepseek.api-key:}")
+    @Value("${ai.deepseek.api-key}")
     private String deepseekApiKey;
 
     @Value("${ai.deepseek.model:deepseek-chat}")

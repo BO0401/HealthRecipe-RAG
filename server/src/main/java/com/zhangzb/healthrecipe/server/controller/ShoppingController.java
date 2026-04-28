@@ -41,17 +41,20 @@ public class ShoppingController {
     @Autowired
     private SysInventoryService inventoryService;
 
+    @Autowired
+    private SecurityUtil securityUtil;
+
     @Operation(summary = "获取采购清单")
     @GetMapping("/list")
     public Result<List<SysShoppingList>> list() {
-        return Result.success(shoppingListService.listByUserId(SecurityUtil.getCurrentUserId()));
+        return Result.success(shoppingListService.listByUserId(securityUtil.getCurrentUserId()));
     }
 
     @Operation(summary = "添加采购项")
     @PostMapping("/add")
     public Result<SysShoppingList> add(@Valid @RequestBody ShoppingListCreateDTO dto) {
         SysShoppingList item = new SysShoppingList();
-        item.setUserId(SecurityUtil.getCurrentUserId());
+        item.setUserId(securityUtil.getCurrentUserId());
         item.setIngredientName(dto.getIngredientName());
         item.setQuantity(dto.getQuantity());
         item.setUnit(dto.getUnit());
@@ -65,7 +68,7 @@ public class ShoppingController {
     public Result<List<SysShoppingList>> batchAdd(@Valid @RequestBody List<ShoppingListCreateDTO> items) {
         List<SysShoppingList> list = items.stream().map(dto -> {
             SysShoppingList item = new SysShoppingList();
-            item.setUserId(SecurityUtil.getCurrentUserId());
+            item.setUserId(securityUtil.getCurrentUserId());
             item.setIngredientName(dto.getIngredientName());
             item.setQuantity(dto.getQuantity());
             item.setUnit(dto.getUnit());
@@ -102,7 +105,7 @@ public class ShoppingController {
     @Operation(summary = "清空已购项目")
     @DeleteMapping("/clear-purchased")
     public Result<Void> clearPurchased() {
-        shoppingListService.clearPurchased(SecurityUtil.getCurrentUserId());
+        shoppingListService.clearPurchased(securityUtil.getCurrentUserId());
         return Result.success();
     }
 
@@ -115,7 +118,7 @@ public class ShoppingController {
             return Result.error(400, "请至少选择一个食谱");
         }
 
-        Long userId = SecurityUtil.getCurrentUserId();
+        Long userId = securityUtil.getCurrentUserId();
 
         // 1. 查询所有选中食谱的食材关联
         List<RelRecipeIngredient> rels = relRecipeIngredientService.listByRecipeIds(recipeIds);

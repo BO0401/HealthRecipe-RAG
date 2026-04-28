@@ -30,10 +30,13 @@ public class InventoryController {
     @Autowired
     private SysIngredientService ingredientService;
 
+    @Autowired
+    private SecurityUtil securityUtil;
+
     @Operation(summary = "获取库存列表")
     @GetMapping("/list")
     public Result<List<InventoryVO>> list() {
-        List<SysInventory> list = inventoryService.listByUserId(SecurityUtil.getCurrentUserId());
+        List<SysInventory> list = inventoryService.listByUserId(securityUtil.getCurrentUserId());
         return Result.success(toVOList(list));
     }
 
@@ -43,7 +46,7 @@ public class InventoryController {
         SysIngredient ingredient = ingredientService.getOrCreate(dto.getIngredientName(), null, dto.getUnit());
 
         SysInventory inventory = new SysInventory();
-        inventory.setUserId(SecurityUtil.getCurrentUserId());
+        inventory.setUserId(securityUtil.getCurrentUserId());
         inventory.setIngredientId(ingredient.getId());
         inventory.setQuantity(dto.getQuantity());
         inventory.setUnit(dto.getUnit());
@@ -82,7 +85,7 @@ public class InventoryController {
     @Operation(summary = "获取即将过期的库存", description = "返回3天内过期的库存项")
     @GetMapping("/expiring-soon")
     public Result<List<InventoryVO>> expiringSoon() {
-        List<SysInventory> list = inventoryService.findExpiringSoon(SecurityUtil.getCurrentUserId(), 3);
+        List<SysInventory> list = inventoryService.findExpiringSoon(securityUtil.getCurrentUserId(), 3);
         return Result.success(toVOList(list));
     }
 

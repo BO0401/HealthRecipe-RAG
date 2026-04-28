@@ -42,5 +42,5 @@ jwt:
 ai:
   deepseek:
     base-url: ${AI_DEEPSEEK_BASE_URL:https://api.deepseek.com}
-    api-key: ${AI_DEEPSEEK_API_KEY:}
+    api-key: ${AI_DEEPSEEK_API_KEY}
     model: ${AI_DEEPSEEK_MODEL:deepseek-chat}

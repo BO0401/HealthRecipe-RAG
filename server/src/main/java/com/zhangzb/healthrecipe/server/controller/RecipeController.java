@@ -42,6 +42,9 @@ public class RecipeController {
     @Autowired
     private SysIngredientService ingredientService;
 
+    @Autowired
+    private SecurityUtil securityUtil;
+
     @Operation(summary = "获取食谱列表", description = "根据关键词搜索食谱")
     @GetMapping("/list")
     public Result<List<RecipeVO>> list(@Valid RecipeQueryDTO params) {
@@ -122,7 +125,7 @@ public class RecipeController {
 
         for (RelRecipeIngredient ri : ingredients) {
             SysShoppingList item = new SysShoppingList();
-            item.setUserId(SecurityUtil.getCurrentUserId());
+            item.setUserId(securityUtil.getCurrentUserId());
             SysIngredient ingredient = ingredientService.getById(ri.getIngredientId());
             String ingredientName = ingredient != null ? ingredient.getName() : "未知食材(" + ri.getIngredientId() + ")";
             item.setIngredientName(ingredientName);
