@@ -1,6 +1,7 @@
 package com.zhangzb.healthrecipe.server.controller;
 
 import com.zhangzb.healthrecipe.server.config.Result;
+import com.zhangzb.healthrecipe.server.config.SecurityUtil;
 import com.zhangzb.healthrecipe.server.dto.DashboardAlertVO;
 import com.zhangzb.healthrecipe.server.dto.DashboardMetricsVO;
 import com.zhangzb.healthrecipe.server.service.SysInventoryService;
@@ -74,6 +75,6 @@ public class DashboardController {
     }
 
     private Long getCurrentUserId() {
-        return 1L;
+        return SecurityUtil.getCurrentUserId();
     }
 }
