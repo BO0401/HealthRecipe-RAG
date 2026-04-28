@@ -1,11 +1,11 @@
 import { z } from 'zod'
 
 export const DashboardMetricsVOSchema = z.object({
-  todayCalories: z.number(),
-  remainingIngredients: z.number(),
-  expiringCount: z.number(),
-  pendingTasks: z.number(),
-  healthScore: z.number()
+  todayCalories: z.number().optional().nullable(),
+  remainingIngredients: z.number().optional().nullable(),
+  expiringCount: z.number().optional().nullable(),
+  pendingTasks: z.number().optional().nullable(),
+  healthScore: z.number().optional().nullable()
 })
 
 export type DashboardMetricsVO = z.infer<typeof DashboardMetricsVOSchema>
@@ -13,13 +13,13 @@ export type DashboardMetricsVO = z.infer<typeof DashboardMetricsVOSchema>
 export const RecipeVOSchema = z.object({
   id: z.number(),
   name: z.string(),
-  coverImg: z.string(),
-  calories: z.number(),
-  cookTime: z.number(),
-  difficulty: z.string(),
-  tags: z.array(z.string()),
-  description: z.string(),
-  steps: z.string()
+  coverImg: z.string().optional().nullable(),
+  calories: z.number().optional().nullable(),
+  cookTime: z.number().optional().nullable(),
+  difficulty: z.string().optional().nullable(),
+  tags: z.array(z.string()).optional().nullable(),
+  description: z.string().optional().nullable(),
+  steps: z.string().optional().nullable()
 })
 
 export type RecipeVO = z.infer<typeof RecipeVOSchema>
@@ -47,10 +47,10 @@ export type RecipeCreateDTO = z.infer<typeof RecipeCreateDTOSchema>
 
 export const InventoryVOSchema = z.object({
   id: z.number(),
-  userId: z.number(),
-  ingredientId: z.number(),
+  userId: z.number().optional().nullable(),
+  ingredientId: z.number().optional().nullable(),
   ingredientName: z.string(),
-  category: z.string(),
+  category: z.string().optional().nullable(),
   quantity: z.number(),
   unit: z.string(),
   expireDate: z.string().optional(),
@@ -80,7 +80,7 @@ export type InventoryUpdateDTO = z.infer<typeof InventoryUpdateDTOSchema>
 
 export const ShoppingListVOSchema = z.object({
   id: z.number(),
-  userId: z.number(),
+  userId: z.number().optional().nullable(),
   ingredientName: z.string(),
   quantity: z.number(),
   unit: z.string(),
@@ -109,9 +109,9 @@ export const ShoppingListUpdateDTOSchema = z.object({
 export type ShoppingListUpdateDTO = z.infer<typeof ShoppingListUpdateDTOSchema>
 
 export const UserProfileSchema = z.object({
-  height: z.number(),
-  weight: z.number(),
-  allergens: z.array(z.string())
+  height: z.number().optional().nullable(),
+  weight: z.number().optional().nullable(),
+  allergens: z.array(z.string()).optional().nullable()
 })
 
 export type UserProfile = z.infer<typeof UserProfileSchema>
@@ -125,7 +125,7 @@ export type InventoryItem = z.infer<typeof InventoryItemSchema>
 
 export const ProfileDataSchema = z.object({
   user: UserProfileSchema,
-  inventory: z.array(InventoryItemSchema)
+  inventory: z.array(InventoryItemSchema).optional().nullable()
 })
 
 export type ProfileData = z.infer<typeof ProfileDataSchema>

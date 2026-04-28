@@ -1,21 +1,26 @@
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import * as echarts from 'echarts'
+import { useDashboardStore } from '../../stores/dashboard'
 
-const nutri = reactive({
-  carbsG: 240,
-  proteinG: 100,
-  fatG: 65
-})
+const dashboardStore = useDashboardStore()
 
 const chartEl = ref<HTMLDivElement | null>(null)
 let chart: echarts.ECharts | null = null
 let ro: ResizeObserver | null = null
 
 const pieData = computed(() => {
-  const c = nutri.carbsG * 4
-  const p = nutri.proteinG * 4
-  const f = nutri.fatG * 9
+  const n = dashboardStore.nutrition
+  const c = n.carbsG * 4
+  const p = n.proteinG * 4
+  const f = n.fatG * 9
+  if (c === 0 && p === 0 && f === 0) {
+    return [
+      { name: '碳水', value: 0, itemStyle: { color: '#409EFF' } },
+      { name: '蛋白', value: 0, itemStyle: { color: '#67C23A' } },
+      { name: '脂肪', value: 0, itemStyle: { color: '#E6A23C' } }
+    ]
+  }
   return [
     { name: '碳水', value: c, itemStyle: { color: '#409EFF' } },
     { name: '蛋白', value: p, itemStyle: { color: '#67C23A' } },
@@ -24,6 +29,12 @@ const pieData = computed(() => {
 })
 
 const totalKcal = computed(() => pieData.value.reduce((sum, x) => sum + x.value, 0))
+
+const pctText = (kcal: number) => {
+  const total = totalKcal.value
+  if (!total) return '0.0%'
+  return `${((kcal / total) * 100).toFixed(1)}%`
+}
 
 const renderPie = () => {
   if (!chartEl.value) return
@@ -102,7 +113,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="pie-panel">
+  <div class="pie-panel" v-loading="dashboardStore.loading">
     <div class="pie-header">
       <span class="title">建议摄入量</span>
       <span class="total">{{ totalKcal.toFixed(0) }} kcal</span>
@@ -114,8 +125,10 @@ onBeforeUnmount(() => {
           <span class="nutri-dot" :style="{ background: item.itemStyle.color }"></span>
           <span class="nutri-name">{{ item.name }}</span>
           <span class="nutri-val">{{ (item.value / (item.name === '脂肪' ? 9 : 4)).toFixed(0) }}g</span>
-          <span class="nutri-pct">{{ ((item.value / totalKcal) * 100).toFixed(1) }}%</span>
+          <span class="nutri-pct">{{ pctText(item.value) }}</span>
         </div>
+        <div v-if="dashboardStore.error" class="err-line">{{ dashboardStore.error }}</div>
+        <div v-else-if="totalKcal === 0" class="muted-line">暂无可用数据</div>
       </div>
     </div>
   </div>
@@ -203,5 +216,17 @@ onBeforeUnmount(() => {
   color: #909399;
   min-width: 48px;
   text-align: right;
+}
+
+.err-line {
+  margin-top: 10px;
+  font-size: 13px;
+  color: #dc2626;
+}
+
+.muted-line {
+  margin-top: 10px;
+  font-size: 13px;
+  color: #909399;
 }
 </style>

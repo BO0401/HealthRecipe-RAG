@@ -2,6 +2,13 @@
 import { onMounted, ref } from 'vue'
 import { useInventoryShoppingStore } from '../../stores/inventoryShopping'
 import {
+  INVENTORY_CATEGORY_LABELS,
+  INVENTORY_LOCATION_LABELS,
+  INVENTORY_LOCATION_TAG_TYPES,
+  SHOPPING_STATUS_LABELS,
+  SHOPPING_STATUS_TAG_TYPES
+} from '../../constants/inventory'
+import {
   ShoppingCart,
   Check,
   Delete,
@@ -20,45 +27,6 @@ onMounted(() => {
   store.fetchInventoryList()
   store.fetchShoppingList()
 })
-
-const categoryLabels: Record<string, string> = {
-  meat: '肉类',
-  seafood: '海鲜',
-  vegetables: '蔬菜',
-  fruits: '水果',
-  grains: '谷物',
-  eggs: '蛋类',
-  beans: '豆制品',
-  dairy: '奶制品',
-  mushrooms: '菌菇',
-  nuts: '坚果',
-  condiments: '调味品',
-  other: '其他'
-}
-
-const locationLabels: Record<string, string> = {
-  fridge: '冷藏',
-  freezer: '冷冻',
-  pantry: '常温'
-}
-
-const locationTypes: Record<string, string> = {
-  fridge: 'primary',
-  freezer: 'info',
-  pantry: 'warning'
-}
-
-const statusLabels: Record<string, string> = {
-  pending: '待采购',
-  purchased: '已购买',
-  excluded: '已剔除'
-}
-
-const statusTypes: Record<string, string> = {
-  pending: 'warning',
-  purchased: 'success',
-  excluded: 'info'
-}
 
 const addDialogVisible = ref(false)
 const addForm = ref({
@@ -190,7 +158,7 @@ const getExpiryDays = (dateStr?: string): number | null => {
             <el-table-column label="分类" width="90">
               <template #default="{ row }">
                 <el-tag size="small" effect="plain">
-                  {{ categoryLabels[row.category] || '其他' }}
+                  {{ INVENTORY_CATEGORY_LABELS[row.category] || '其他' }}
                 </el-tag>
               </template>
             </el-table-column>
@@ -201,8 +169,8 @@ const getExpiryDays = (dateStr?: string): number | null => {
             </el-table-column>
             <el-table-column label="存放位置" width="90">
               <template #default="{ row }">
-                <el-tag :type="locationTypes[row.location] as any" size="small" effect="light">
-                  {{ locationLabels[row.location] }}
+                <el-tag :type="INVENTORY_LOCATION_TAG_TYPES[row.location] as any" size="small" effect="light">
+                  {{ INVENTORY_LOCATION_LABELS[row.location] }}
                 </el-tag>
               </template>
             </el-table-column>
@@ -302,7 +270,7 @@ const getExpiryDays = (dateStr?: string): number | null => {
             <el-table-column label="分类" width="90">
               <template #default="{ row }">
                 <el-tag size="small" effect="plain">
-                  {{ categoryLabels[row.category] || '其他' }}
+                  {{ INVENTORY_CATEGORY_LABELS[row.category] || '其他' }}
                 </el-tag>
               </template>
             </el-table-column>
@@ -329,11 +297,11 @@ const getExpiryDays = (dateStr?: string): number | null => {
             <el-table-column label="状态" width="90">
               <template #default="{ row }">
                 <el-tag
-                  :type="statusTypes[row.status] as any"
+                  :type="SHOPPING_STATUS_TAG_TYPES[row.status] as any"
                   size="small"
                   effect="light"
                 >
-                  {{ statusLabels[row.status] }}
+                  {{ SHOPPING_STATUS_LABELS[row.status] }}
                 </el-tag>
               </template>
             </el-table-column>
@@ -411,7 +379,7 @@ const getExpiryDays = (dateStr?: string): number | null => {
         </el-form-item>
         <el-form-item label="分类">
           <el-select v-model="addForm.category" style="width: 100%">
-            <el-option v-for="(label, key) in categoryLabels" :key="key" :label="label" :value="key" />
+            <el-option v-for="(label, key) in INVENTORY_CATEGORY_LABELS" :key="key" :label="label" :value="key" />
           </el-select>
         </el-form-item>
         <el-form-item label="数量">

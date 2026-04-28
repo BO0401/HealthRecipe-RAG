@@ -1,13 +1,16 @@
 <script setup lang="ts">
-import { computed, reactive } from 'vue'
+import { computed, ref } from 'vue'
+import { useProfileStore } from '../../stores/profile'
+import { useDashboardStore } from '../../stores/dashboard'
 
-const now = new Date()
+const profileStore = useProfileStore()
+const dashboardStore = useDashboardStore()
 
-const me = reactive({
-    nickname: '张同学',
-    online: true,
-    syncing: false,
-    lastSyncAt: new Date(now.getTime() - 1000 * 60 * 9)
+const syncing = ref(false)
+
+const nickname = computed(() => {
+  if (profileStore.user.height || profileStore.user.weight) return '用户'
+  return '用户'
 })
 
 const greetText = computed(() => {
@@ -22,24 +25,28 @@ const todayText = computed(() => {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 })
 
-const fmtTime = (d: Date) => {
-  const hh = String(d.getHours()).padStart(2, '0')
-  const mm = String(d.getMinutes()).padStart(2, '0')
-  return `${hh}:${mm}`
-}
+const lastSyncText = computed(() => {
+  const t = dashboardStore.lastSyncAt
+  if (!t) return '--:--'
+  return `${String(t.getHours()).padStart(2, '0')}:${String(t.getMinutes()).padStart(2, '0')}`
+})
 
 const doReload = async () => {
-  if (me.syncing) return
-  me.syncing = true
+  if (syncing.value) return
+  syncing.value = true
   console.debug('[dashboard] reload start')
 
   try {
-    await new Promise((r) => setTimeout(r, 450))
-    me.lastSyncAt = new Date()
-    me.online = true
+    await Promise.all([
+      dashboardStore.fetchMetrics(),
+      dashboardStore.fetchAlerts(),
+      profileStore.fetchProfile()
+    ])
+  } catch (err) {
+    console.error('[dashboard] reload error:', err)
   } finally {
-    me.syncing = false
-    console.debug('[dashboard] reload end', { lastSyncAt: me.lastSyncAt.toISOString() })
+    syncing.value = false
+    console.debug('[dashboard] reload end')
   }
 }
 </script>
@@ -49,14 +56,12 @@ const doReload = async () => {
     <div class="left">
       <div class="brand">HealthRecipe RAG</div>
       <div class="sub">
-        {{ greetText }}，{{ me.nickname }} · {{ todayText }} · 更新 {{ fmtTime(me.lastSyncAt) }}
+        {{ greetText }}，{{ nickname }} · {{ todayText }} · 更新 {{ lastSyncText }}
       </div>
     </div>
     <div class="right">
-      <el-tag size="small" :type="me.online ? 'success' : 'danger'">
-        {{ me.online ? '在线' : '离线' }}
-      </el-tag>
-      <el-button size="small" :loading="me.syncing" @click="doReload">重新加载</el-button>
+      <el-tag size="small" type="success">在线</el-tag>
+      <el-button size="small" :loading="syncing" @click="doReload">重新加载</el-button>
     </div>
   </el-header>
 </template>
@@ -102,4 +107,3 @@ const doReload = async () => {
   }
 }
 </style>
-

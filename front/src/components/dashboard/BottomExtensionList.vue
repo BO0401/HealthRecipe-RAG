@@ -1,16 +1,13 @@
 <script setup lang="ts">
-import { reactive } from 'vue'
+import { onMounted } from 'vue'
 import { Bell, ArrowRight } from '@element-plus/icons-vue'
+import { useDashboardStore } from '../../stores/dashboard'
 
-const alerts = reactive([
-  { id: 1, title: '全脂牛奶即将过期', date: '还剩 1 天', type: 'danger', tag: '库存预警' },
-  { id: 2, title: '本周蛋白质摄入不足', date: '建议摄入 350g，实际 210g', type: 'warning', tag: '营养预警' },
-  { id: 3, title: '冰箱库存：鸡蛋仅剩 2 枚', date: '建议补充', type: 'warning', tag: '采购提醒' },
-  { id: 4, title: '推荐食谱：番茄牛腩', date: '今日推荐 · 高蛋白', type: 'primary', tag: '智能食谱' },
-  { id: 5, title: '膳食纤维摄入偏低', date: '建议增加蔬菜水果', type: 'info', tag: '健康提示' }
-])
+const dashboardStore = useDashboardStore()
 
-console.debug('[dashboard] extension list init', alerts.length)
+onMounted(() => {
+  dashboardStore.fetchAlerts()
+})
 </script>
 
 <template>
@@ -22,13 +19,30 @@ console.debug('[dashboard] extension list init', alerts.length)
       </el-button>
     </div>
 
-    <div class="ext-list">
-      <div v-for="item in alerts" :key="item.id" class="ext-item">
+    <div class="ext-list" v-loading="dashboardStore.alertsLoading">
+      <el-result
+        v-if="dashboardStore.alertsError"
+        icon="error"
+        title="加载失败"
+        :sub-title="dashboardStore.alertsError"
+      >
+        <template #extra>
+          <el-button type="primary" size="small" @click="dashboardStore.fetchAlerts()">重试</el-button>
+        </template>
+      </el-result>
+
+      <el-empty
+        v-else-if="dashboardStore.alerts.length === 0"
+        description="暂无动态与预警"
+        :image-size="80"
+      />
+
+      <div v-else v-for="item in dashboardStore.alerts" :key="item.id" class="ext-item">
         <div class="item-left">
           <el-icon :class="['item-icon', item.type]"><Bell /></el-icon>
           <div class="item-info">
             <div class="item-title">{{ item.title }}</div>
-            <div class="item-date">{{ item.date }}</div>
+            <div class="item-date">{{ item.dateText }}</div>
           </div>
         </div>
         <el-tag :type="item.type" size="small" effect="plain">{{ item.tag }}</el-tag>

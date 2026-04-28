@@ -12,7 +12,7 @@ console.log('[dashboard] metric cards loaded with Pinia store')
 </script>
 
 <template>
-  <div class="metric-grid">
+  <div class="metric-grid" v-loading="dashboardStore.loading">
     <div v-for="item in dashboardStore.metrics" :key="item.title" class="metric-card">
       <div class="metric-content">
         <div class="metric-info">
@@ -28,6 +28,9 @@ console.log('[dashboard] metric cards loaded with Pinia store')
         </el-icon>
       </div>
     </div>
+    <div v-if="dashboardStore.error" class="error-bar">
+      <el-alert :title="dashboardStore.error" type="error" show-icon :closable="false" />
+    </div>
   </div>
 </template>
 
@@ -36,6 +39,7 @@ console.log('[dashboard] metric cards loaded with Pinia store')
   display: flex;
   gap: 8px;
   width: 100%;
+  position: relative;
 }
 
 .metric-card {
@@ -83,5 +87,12 @@ console.log('[dashboard] metric cards loaded with Pinia store')
 
 .metric-icon {
   opacity: 0.85;
+}
+
+.error-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -44px;
 }
 </style>

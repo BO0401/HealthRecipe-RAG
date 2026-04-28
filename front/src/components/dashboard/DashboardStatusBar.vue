@@ -1,12 +1,8 @@
 <script setup lang="ts">
-import { reactive } from 'vue'
+import { computed } from 'vue'
+import { useDashboardStore } from '../../stores/dashboard'
 
-const now = new Date()
-
-const sync = reactive({
-    err: '',
-    lastSyncAt: new Date(now.getTime() - 1000 * 60 * 9)
-})
+const dashboardStore = useDashboardStore()
 
 const fmtTime = (d: Date) => {
   const hh = String(d.getHours()).padStart(2, '0')
@@ -14,17 +10,22 @@ const fmtTime = (d: Date) => {
   return `${hh}:${mm}`
 }
 
-console.debug('[dashboard] status bar init', { lastSyncAt: sync.lastSyncAt.toISOString() })
+const hasError = computed(() => Boolean(dashboardStore.error))
+const lastSyncText = computed(() => {
+  const t = dashboardStore.lastSyncAt
+  if (!t) return '-'
+  return fmtTime(t)
+})
 </script>
 
 <template>
   <el-footer class="bottom">
     <div class="left">
-      <span class="badge" :data-ok="!sync.err">{{ sync.err ? '数据异常' : '数据已同步' }}</span>
-      <span class="muted">最后更新 {{ fmtTime(sync.lastSyncAt) }}</span>
+      <span class="badge" :data-ok="!hasError">{{ hasError ? '数据异常' : '数据已同步' }}</span>
+      <span class="muted">最后更新 {{ lastSyncText }}</span>
     </div>
     <div class="right">
-      <span v-if="sync.err" class="err">{{ sync.err }}</span>
+      <span v-if="hasError" class="err">{{ dashboardStore.error }}</span>
       <span v-else class="muted">状态栏仅展示最小必要信息</span>
     </div>
   </el-footer>
@@ -79,4 +80,3 @@ console.debug('[dashboard] status bar init', { lastSyncAt: sync.lastSyncAt.toISO
   }
 }
 </style>
-

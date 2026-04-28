@@ -1,45 +1,50 @@
 <script setup lang="ts">
-import { computed, reactive } from 'vue'
+import { computed } from 'vue'
+import { User } from '@element-plus/icons-vue'
+import { useProfileStore } from '../../stores/profile'
 
-const user = reactive({
-  nickname: '健康达人',
-  avatar: 'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png',
-  heightCm: 172,
-  weightKg: 68.5,
-  lastCheckAt: '今日 08:30'
-})
+const profileStore = useProfileStore()
 
 const bmi = computed(() => {
-  const m = user.heightCm / 100
-  const v = user.weightKg / (m * m)
+  const height = profileStore.user.height
+  const weight = profileStore.user.weight
+  if (!height || !weight) return 0
+  const m = height / 100
+  const v = weight / (m * m)
   return Number.isFinite(v) ? Number(v.toFixed(1)) : 0
 })
 
 const bmiInfo = computed(() => {
   const v = bmi.value
+  if (v === 0) return { label: '未设置', type: 'info' as const, tip: '请先设置身高体重' }
   if (v < 18.5) return { label: '偏瘦', type: 'warning' as const, tip: '建议增加优质蛋白摄入' }
   if (v < 24) return { label: '正常', type: 'success' as const, tip: '状态良好，继续保持！' }
   if (v < 28) return { label: '偏胖', type: 'warning' as const, tip: '建议控制油脂摄入' }
   return { label: '肥胖', type: 'danger' as const, tip: '建议咨询专业营养师' }
 })
 
-console.debug('[dashboard] user status card mounted')
+const lastCheckText = computed(() => {
+  if (!profileStore.lastSaved) return '暂无记录'
+  return profileStore.lastSaved
+})
 </script>
 
 <template>
   <div class="user-panel">
     <div class="user-header">
-      <el-avatar :size="40" :src="user.avatar" />
+      <el-avatar :size="40">
+        <el-icon :size="20"><User /></el-icon>
+      </el-avatar>
       <div class="user-name">
-        <h3>{{ user.nickname }}</h3>
-        <p>{{ user.lastCheckAt }}</p>
+        <h3>用户</h3>
+        <p>{{ lastCheckText }}</p>
       </div>
     </div>
 
     <div class="status-grid">
       <div class="status-item">
         <div class="label">BMI</div>
-        <div class="value">{{ bmi }}</div>
+        <div class="value">{{ bmi || '-' }}</div>
         <el-tag :type="bmiInfo.type" size="small" effect="plain">{{ bmiInfo.label }}</el-tag>
       </div>
       <div class="status-item">
@@ -49,9 +54,9 @@ console.debug('[dashboard] user status card mounted')
     </div>
 
     <div class="body-metrics">
-      <span>{{ user.heightCm }}cm</span>
+      <span>{{ profileStore.user.height || '-' }}cm</span>
       <span class="sep">|</span>
-      <span>{{ user.weightKg }}kg</span>
+      <span>{{ profileStore.user.weight || '-' }}kg</span>
     </div>
   </div>
 </template>

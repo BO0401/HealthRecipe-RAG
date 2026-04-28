@@ -19,6 +19,7 @@ public class DatabaseFixer implements CommandLineRunner {
     public void run(String... args) {
         fixInventoryTable();
         fixShoppingListTable();
+        fixRecipeTable();
         fixVectorStoreTable();
     }
 
@@ -64,6 +65,21 @@ public class DatabaseFixer implements CommandLineRunner {
             log.info("[DB Fix] Added column 'update_time' to sys_vector_store");
         } catch (Exception e) {
             log.info("[DB Fix] Column 'update_time' already exists in sys_vector_store: {}", e.getMessage());
+        }
+    }
+
+    private void fixRecipeTable() {
+        try {
+            jdbcTemplate.execute("ALTER TABLE sys_recipe ADD COLUMN calories INT DEFAULT NULL COMMENT '热量(kcal)'");
+            log.info("[DB Fix] Added column 'calories' to sys_recipe");
+        } catch (Exception e) {
+            log.info("[DB Fix] Column 'calories' already exists in sys_recipe: {}", e.getMessage());
+        }
+        try {
+            jdbcTemplate.execute("ALTER TABLE sys_recipe ADD COLUMN description VARCHAR(500) DEFAULT NULL COMMENT '食谱描述'");
+            log.info("[DB Fix] Added column 'description' to sys_recipe");
+        } catch (Exception e) {
+            log.info("[DB Fix] Column 'description' already exists in sys_recipe: {}", e.getMessage());
         }
     }
 }

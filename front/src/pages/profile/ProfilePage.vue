@@ -54,7 +54,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="profile-page">
+  <div class="profile-page" v-loading="profileStore.loading">
     <div class="page-header">
       <div class="header-left">
         <h2 class="page-title">个人中心</h2>

@@ -6,6 +6,7 @@ const RETRY_DELAY = 1000
 
 interface RetryConfig extends InternalAxiosRequestConfig {
   _retryCount?: number
+  _authHandled?: boolean
 }
 
 const instance: AxiosInstance = axios.create({
@@ -28,27 +29,12 @@ const http: HttpClient = {
   delete: <T = void>(url: string, config?: AxiosRequestConfig) => instance.delete<any, T>(url, config)
 }
 
-let isRefreshing = false
-let pendingRequests: Array<(token: string) => void> = []
-
 function getToken(): string | null {
   return localStorage.getItem('token')
 }
 
 function setToken(token: string): void {
   localStorage.setItem('token', token)
-}
-
-function getRefreshToken(): string | null {
-  return localStorage.getItem('refreshToken')
-}
-
-async function refreshToken(): Promise<string> {
-  const refresh = getRefreshToken()
-  const response = await axios.post('/api/auth/refresh', { refreshToken: refresh })
-  const newToken = response.data.data?.token || response.data.token
-  setToken(newToken)
-  return newToken
 }
 
 instance.interceptors.request.use(
@@ -79,42 +65,28 @@ instance.interceptors.response.use(
     const status = error.response?.status
     const msg = (error.response?.data as any)?.message || error.message
 
-    if (status === 401 && config && !config._retryCount) {
-      if (!isRefreshing) {
-        isRefreshing = true
-        try {
-          const newToken = await refreshToken()
-          isRefreshing = false
-          pendingRequests.forEach((cb) => cb(newToken))
-          pendingRequests = []
-          if (config.headers) {
-            config.headers.Authorization = `Bearer ${newToken}`
-          }
-          return instance(config)
-        } catch {
-          isRefreshing = false
-          pendingRequests = []
-          localStorage.removeItem('token')
-          localStorage.removeItem('refreshToken')
-          ElMessage.error('登录已过期，请重新登录')
-          return Promise.reject(error)
-        }
-      } else {
-        return new Promise((resolve) => {
-          pendingRequests.push((token: string) => {
-            if (config.headers) {
-              config.headers.Authorization = `Bearer ${token}`
-            }
-            resolve(instance(config))
-          })
-        })
-      }
+    if (status === 401 && config && !config._authHandled) {
+      config._authHandled = true
+      localStorage.removeItem('token')
+      localStorage.removeItem('refreshToken')
+      ElMessage.error('会话已失效，请重新登录')
+      return Promise.reject(error)
     }
 
-    if (config && config._retryCount !== undefined && config._retryCount < MAX_RETRIES) {
-      config._retryCount = (config._retryCount || 0) + 1
-      await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY * config._retryCount!))
-      return instance(config)
+    const method = String(config?.method || 'get').toLowerCase()
+    const canRetry =
+      Boolean(config) &&
+      MAX_RETRIES > 0 &&
+      ['get', 'head', 'options'].includes(method) &&
+      (status === undefined || status >= 500 || error.code === 'ECONNABORTED')
+
+    if (canRetry) {
+      config!._retryCount = config!._retryCount ?? 0
+      if (config!._retryCount < MAX_RETRIES) {
+        config!._retryCount += 1
+        await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY * config!._retryCount!))
+        return instance(config!)
+      }
     }
 
     switch (status) {

@@ -2,6 +2,9 @@ import { defineStore } from 'pinia'
 import { ref, reactive } from 'vue'
 import { recipeApi } from '../api/recipe'
 import type { RecipeVO } from '../types/api'
+import { BODY_TYPE_OPTIONS } from '../constants/recipe'
+import { ALLERGEN_OPTIONS_RECIPE_CODE } from '../constants/allergens'
+import heroPng from '../assets/hero.png'
 
 export interface RecipeItem {
   id: number
@@ -22,7 +25,7 @@ export interface FilterState {
 const toRecipeItem = (vo: RecipeVO): RecipeItem => ({
   id: vo.id,
   name: vo.name,
-  image: vo.coverImg || 'https://placehold.co/400x300/409EFF/FFFFFF?text=美食',
+  image: vo.coverImg || heroPng,
   calories: vo.calories || 0,
   cookingTime: vo.cookTime || 0,
   tags: vo.tags || [],
@@ -40,24 +43,8 @@ export const useRecipeStore = defineStore('recipe', () => {
     keyword: ''
   })
 
-  const bodyTypeOptions = [
-    { value: 'balanced', label: '均衡型' },
-    { value: 'weight_loss', label: '减脂型' },
-    { value: 'muscle_gain', label: '增肌型' },
-    { value: 'low_carb', label: '低碳水型' },
-    { value: 'high_protein', label: '高蛋白型' }
-  ]
-
-  const allergenOptions = [
-    { value: 'milk', label: '牛奶' },
-    { value: 'egg', label: '鸡蛋' },
-    { value: 'peanut', label: '花生' },
-    { value: 'soy', label: '大豆' },
-    { value: 'wheat', label: '小麦' },
-    { value: 'fish', label: '鱼类' },
-    { value: 'shellfish', label: '贝壳类' },
-    { value: 'tree_nut', label: '坚果' }
-  ]
+  const bodyTypeOptions = BODY_TYPE_OPTIONS
+  const allergenOptions = ALLERGEN_OPTIONS_RECIPE_CODE
 
   const fetchRecipes = async () => {
     loading.value = true

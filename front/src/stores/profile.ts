@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, reactive } from 'vue'
 import { profileApi } from '../api/profile'
 import type { UserProfile, InventoryItem } from '../types/api'
+import { ALLERGEN_OPTIONS_PROFILE_CN } from '../constants/allergens'
 
 export const useProfileStore = defineStore('profile', () => {
   const loading = ref(false)
@@ -17,16 +18,7 @@ export const useProfileStore = defineStore('profile', () => {
 
   const inventory = ref<InventoryItem[]>([])
 
-  const allergenOptions = [
-    { value: '牛奶', label: '牛奶' },
-    { value: '鸡蛋', label: '鸡蛋' },
-    { value: '花生', label: '花生' },
-    { value: '大豆', label: '大豆' },
-    { value: '小麦', label: '小麦' },
-    { value: '鱼类', label: '鱼类' },
-    { value: '海鲜', label: '海鲜' },
-    { value: '坚果', label: '坚果' }
-  ]
+  const allergenOptions = ALLERGEN_OPTIONS_PROFILE_CN
 
   const fetchProfile = async () => {
     loading.value = true
@@ -35,10 +27,10 @@ export const useProfileStore = defineStore('profile', () => {
     try {
       const data = await profileApi.get()
 
-      user.height = data.user.height
-      user.weight = data.user.weight
-      user.allergens = data.user.allergens
-      inventory.value = data.inventory
+      user.height = Number(data.user.height || 0)
+      user.weight = Number(data.user.weight || 0)
+      user.allergens = Array.isArray(data.user.allergens) ? data.user.allergens.filter(Boolean) : []
+      inventory.value = Array.isArray(data.inventory) ? data.inventory : []
     } catch (err: any) {
       error.value = '获取个人信息失败，请稍后重试'
       console.error('[profile] fetch error:', err)
