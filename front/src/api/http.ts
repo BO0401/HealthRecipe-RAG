@@ -22,10 +22,10 @@ interface HttpClient {
 }
 
 const http: HttpClient = {
-  get: <T>(url: string, config?: AxiosRequestConfig) => instance.get<any>(url, config).then(res => res.data) as Promise<T>,
-  post: <T>(url: string, data?: unknown, config?: AxiosRequestConfig) => instance.post<any>(url, data, config).then(res => res.data) as Promise<T>,
-  put: <T>(url: string, data?: unknown, config?: AxiosRequestConfig) => instance.put<any>(url, data, config).then(res => res.data) as Promise<T>,
-  delete: <T = void>(url: string, config?: AxiosRequestConfig) => instance.delete<any>(url, config).then(res => res.data) as Promise<T>
+  get: <T>(url: string, config?: AxiosRequestConfig) => instance.get<any, T>(url, config),
+  post: <T>(url: string, data?: unknown, config?: AxiosRequestConfig) => instance.post<any, T>(url, data, config),
+  put: <T>(url: string, data?: unknown, config?: AxiosRequestConfig) => instance.put<any, T>(url, data, config),
+  delete: <T = void>(url: string, config?: AxiosRequestConfig) => instance.delete<any, T>(url, config)
 }
 
 let isRefreshing = false
@@ -64,12 +64,15 @@ instance.interceptors.request.use(
 
 instance.interceptors.response.use(
   (response) => {
-    const data = response.data
-    if (data && data.code !== undefined && data.code !== 200) {
-      ElMessage.error(data.message || '请求失败')
-      return Promise.reject(new Error(data.message || '请求失败'))
+    const body = response.data
+    if (body && body.code !== undefined) {
+      if (body.code !== 200) {
+        ElMessage.error(body.message || '请求失败')
+        return Promise.reject(new Error(body.message || '请求失败'))
+      }
+      return body.data
     }
-    return data
+    return body
   },
   async (error: AxiosError) => {
     const config = error.config as RetryConfig | undefined

@@ -13,6 +13,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,14 +32,22 @@ public class ProfileController {
     @GetMapping
     public Result<ProfileDataDTO> get() {
         SysUser user = userService.getDefaultUser();
-        if (user == null) {
-            return Result.success(new ProfileDataDTO());
-        }
 
         ProfileDataDTO dto = new ProfileDataDTO();
+
+        if (user == null) {
+            ProfileDataDTO.UserProfile emptyProfile = new ProfileDataDTO.UserProfile();
+            emptyProfile.setHeight(BigDecimal.ZERO);
+            emptyProfile.setWeight(BigDecimal.ZERO);
+            emptyProfile.setAllergens(List.of());
+            dto.setUser(emptyProfile);
+            dto.setInventory(List.of());
+            return Result.success(dto);
+        }
+
         ProfileDataDTO.UserProfile profile = new ProfileDataDTO.UserProfile();
-        profile.setHeight(user.getHeightCm());
-        profile.setWeight(user.getWeightKg());
+        profile.setHeight(user.getHeightCm() != null ? user.getHeightCm() : BigDecimal.ZERO);
+        profile.setWeight(user.getWeightKg() != null ? user.getWeightKg() : BigDecimal.ZERO);
         if (user.getAllergens() != null && !user.getAllergens().isEmpty()) {
             profile.setAllergens(List.of(user.getAllergens().split(",")));
         } else {
