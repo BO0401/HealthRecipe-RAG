@@ -2,13 +2,16 @@ package com.zhangzb.healthrecipe.server.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.zhangzb.healthrecipe.server.config.Result;
+import com.zhangzb.healthrecipe.server.config.SecurityUtil;
 import com.zhangzb.healthrecipe.server.dto.RecipeCreateDTO;
 import com.zhangzb.healthrecipe.server.dto.RecipeQueryDTO;
 import com.zhangzb.healthrecipe.server.dto.RecipeVO;
 import com.zhangzb.healthrecipe.server.entity.RelRecipeIngredient;
 import com.zhangzb.healthrecipe.server.entity.SysRecipe;
 import com.zhangzb.healthrecipe.server.entity.SysShoppingList;
+import com.zhangzb.healthrecipe.server.entity.SysIngredient;
 import com.zhangzb.healthrecipe.server.service.RelRecipeIngredientService;
+import com.zhangzb.healthrecipe.server.service.SysIngredientService;
 import com.zhangzb.healthrecipe.server.service.SysRecipeService;
 import com.zhangzb.healthrecipe.server.service.SysShoppingListService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -35,6 +38,9 @@ public class RecipeController {
 
     @Autowired
     private SysShoppingListService shoppingListService;
+
+    @Autowired
+    private SysIngredientService ingredientService;
 
     @Operation(summary = "获取食谱列表", description = "根据关键词搜索食谱")
     @GetMapping("/list")
@@ -69,6 +75,8 @@ public class RecipeController {
         recipe.setCookTime(dto.getCookTime());
         recipe.setDifficulty(dto.getDifficulty());
         recipe.setSteps(dto.getSteps());
+        recipe.setCalories(dto.getCalories());
+        recipe.setDescription(dto.getDescription());
         recipeService.save(recipe);
         return Result.success(toVO(recipe));
     }
@@ -85,6 +93,8 @@ public class RecipeController {
         if (dto.getCookTime() != null) recipe.setCookTime(dto.getCookTime());
         if (dto.getDifficulty() != null) recipe.setDifficulty(dto.getDifficulty());
         if (dto.getSteps() != null) recipe.setSteps(dto.getSteps());
+        if (dto.getCalories() != null) recipe.setCalories(dto.getCalories());
+        if (dto.getDescription() != null) recipe.setDescription(dto.getDescription());
         recipeService.updateById(recipe);
         return Result.success(toVO(recipe));
     }
@@ -112,8 +122,9 @@ public class RecipeController {
 
         for (RelRecipeIngredient ri : ingredients) {
             SysShoppingList item = new SysShoppingList();
-            item.setUserId(1L);
-            item.setIngredientName(ri.getIngredientId().toString());
+            item.setUserId(SecurityUtil.getCurrentUserId());
+            SysIngredient ingredient = ingredientService.getById(ri.getIngredientId());
+            item.setIngredientName(ingredient != null ? ingredient.getName() : ri.getIngredientId().toString());
             item.setQuantity(ri.getAmount());
             item.setUnit(ri.getUnit());
             item.setStatus(0);
@@ -131,9 +142,9 @@ public class RecipeController {
         vo.setCookTime(recipe.getCookTime());
         vo.setDifficulty(recipe.getDifficulty());
         vo.setSteps(recipe.getSteps());
+        vo.setCalories(recipe.getCalories());
+        vo.setDescription(recipe.getDescription());
         vo.setTags(new ArrayList<>());
-        vo.setDescription("");
-        vo.setCalories(0);
         return vo;
     }
 

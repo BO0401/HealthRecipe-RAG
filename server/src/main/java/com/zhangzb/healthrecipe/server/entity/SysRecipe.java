@@ -17,6 +17,8 @@ public class SysRecipe {
     private String steps;
     private Integer cookTime;
     private String difficulty;
+    private Integer calories;
+    private String description;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
 }

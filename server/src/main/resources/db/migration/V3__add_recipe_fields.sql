@@ -1,0 +1,3 @@
+ALTER TABLE sys_recipe
+    ADD COLUMN calories INT DEFAULT NULL COMMENT '热量(kcal)',
+    ADD COLUMN description VARCHAR(500) DEFAULT NULL COMMENT '食谱描述';

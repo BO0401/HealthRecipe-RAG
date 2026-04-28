@@ -1,6 +1,7 @@
 package com.zhangzb.healthrecipe.server.controller;
 
 import com.zhangzb.healthrecipe.server.config.Result;
+import com.zhangzb.healthrecipe.server.config.SecurityUtil;
 import com.zhangzb.healthrecipe.server.dto.InventoryCreateDTO;
 import com.zhangzb.healthrecipe.server.dto.InventoryUpdateDTO;
 import com.zhangzb.healthrecipe.server.dto.InventoryVO;
@@ -32,7 +33,7 @@ public class InventoryController {
     @Operation(summary = "获取库存列表")
     @GetMapping("/list")
     public Result<List<InventoryVO>> list() {
-        List<SysInventory> list = inventoryService.listByUserId(1L);
+        List<SysInventory> list = inventoryService.listByUserId(SecurityUtil.getCurrentUserId());
         return Result.success(toVOList(list));
     }
 
@@ -42,7 +43,7 @@ public class InventoryController {
         SysIngredient ingredient = ingredientService.getOrCreate(dto.getIngredientName(), null, dto.getUnit());
 
         SysInventory inventory = new SysInventory();
-        inventory.setUserId(1L);
+        inventory.setUserId(SecurityUtil.getCurrentUserId());
         inventory.setIngredientId(ingredient.getId());
         inventory.setQuantity(dto.getQuantity());
         inventory.setUnit(dto.getUnit());
@@ -81,7 +82,7 @@ public class InventoryController {
     @Operation(summary = "获取即将过期的库存", description = "返回3天内过期的库存项")
     @GetMapping("/expiring-soon")
     public Result<List<InventoryVO>> expiringSoon() {
-        List<SysInventory> list = inventoryService.findExpiringSoon(1L, 3);
+        List<SysInventory> list = inventoryService.findExpiringSoon(SecurityUtil.getCurrentUserId(), 3);
         return Result.success(toVOList(list));
     }
 

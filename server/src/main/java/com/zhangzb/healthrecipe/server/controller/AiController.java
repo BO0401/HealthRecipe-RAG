@@ -1,5 +1,7 @@
 package com.zhangzb.healthrecipe.server.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zhangzb.healthrecipe.server.config.Result;
 import com.zhangzb.healthrecipe.server.entity.SysVectorStore;
 import com.zhangzb.healthrecipe.server.service.SysVectorStoreService;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
+import reactor.netty.http.client.HttpClient;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -21,6 +24,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Tag(name = "AI 知识库", description = "RAG 文档上传、管理、向量存储及聊天代理")
@@ -30,6 +34,8 @@ public class AiController {
 
     @Autowired
     private SysVectorStoreService vectorStoreService;
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Value("${ai.deepseek.base-url:https://api.deepseek.com}")
     private String deepseekBaseUrl;
@@ -43,7 +49,12 @@ public class AiController {
     private final WebClient webClient;
 
     public AiController() {
-        this.webClient = WebClient.builder().build();
+        HttpClient httpClient = HttpClient.create()
+                .responseTimeout(java.time.Duration.ofSeconds(30));
+
+        this.webClient = WebClient.builder()
+                .clientConnector(new org.springframework.http.client.reactive.ReactorClientHttpConnector(httpClient))
+                .build();
     }
 
     @Operation(summary = "聊天代理", description = "代理前端请求到 DeepSeek API，支持流式响应")
@@ -69,6 +80,17 @@ public class AiController {
                 .concatWithValues("data:[DONE]\n\n");
     }
 
+    private String buildMetadataJson(String filename, long size) {
+        try {
+            java.util.Map<String, Object> meta = new java.util.LinkedHashMap<>();
+            meta.put("name", filename);
+            meta.put("size", size);
+            return objectMapper.writeValueAsString(meta);
+        } catch (JsonProcessingException e) {
+            return "{\"name\":\"\",\"size\":0}";
+        }
+    }
+
     @Operation(summary = "上传文档", description = "上传文本文件到知识库")
     @PostMapping("/document/upload")
     public Result<UploadedDocVO> uploadDocument(@Parameter(description = "上传的文件") @RequestParam("file") MultipartFile file) {
@@ -82,7 +104,7 @@ public class AiController {
 
             SysVectorStore doc = new SysVectorStore();
             doc.setContent(content);
-            doc.setMetadata("{\"name\":\"" + file.getOriginalFilename() + "\",\"size\":" + file.getSize() + "}");
+            doc.setMetadata(buildMetadataJson(file.getOriginalFilename(), file.getSize()));
             doc.setCreateTime(LocalDateTime.now());
             doc.setUpdateTime(LocalDateTime.now());
             vectorStoreService.save(doc);
