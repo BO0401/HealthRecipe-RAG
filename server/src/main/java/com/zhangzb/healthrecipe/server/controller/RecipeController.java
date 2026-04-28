@@ -124,7 +124,8 @@ public class RecipeController {
             SysShoppingList item = new SysShoppingList();
             item.setUserId(SecurityUtil.getCurrentUserId());
             SysIngredient ingredient = ingredientService.getById(ri.getIngredientId());
-            item.setIngredientName(ingredient != null ? ingredient.getName() : ri.getIngredientId().toString());
+            String ingredientName = ingredient != null ? ingredient.getName() : "未知食材(" + ri.getIngredientId() + ")";
+            item.setIngredientName(ingredientName);
             item.setQuantity(ri.getAmount());
             item.setUnit(ri.getUnit());
             item.setStatus(0);
