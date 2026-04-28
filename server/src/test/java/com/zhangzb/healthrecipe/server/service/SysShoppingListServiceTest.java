@@ -3,11 +3,13 @@ package com.zhangzb.healthrecipe.server.service;
 import com.zhangzb.healthrecipe.server.entity.SysShoppingList;
 import com.zhangzb.healthrecipe.server.mapper.SysShoppingListMapper;
 import com.zhangzb.healthrecipe.server.service.impl.SysShoppingListServiceImpl;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Arrays;
 import java.util.List;
@@ -24,6 +26,11 @@ class SysShoppingListServiceTest {
 
     @InjectMocks
     private SysShoppingListServiceImpl shoppingListService;
+
+    @BeforeEach
+    void setUp() {
+        ReflectionTestUtils.setField(shoppingListService, "baseMapper", shoppingListMapper);
+    }
 
     @Test
     void listByUserId_shouldReturnUserItems() {

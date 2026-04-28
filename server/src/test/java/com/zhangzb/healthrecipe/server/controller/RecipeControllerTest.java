@@ -2,6 +2,7 @@ package com.zhangzb.healthrecipe.server.controller;
 
 import com.zhangzb.healthrecipe.server.config.Result;
 import com.zhangzb.healthrecipe.server.dto.RecipeCreateDTO;
+import com.zhangzb.healthrecipe.server.dto.RecipeQueryDTO;
 import com.zhangzb.healthrecipe.server.dto.RecipeVO;
 import com.zhangzb.healthrecipe.server.entity.SysRecipe;
 import com.zhangzb.healthrecipe.server.service.RelRecipeIngredientService;
@@ -102,7 +103,8 @@ class RecipeControllerTest {
         recipe.setName("番茄炒蛋");
         when(recipeService.searchByKeyword(null)).thenReturn(List.of(recipe));
 
-        Result<List<RecipeVO>> result = recipeController.list(null);
+        RecipeQueryDTO params = new RecipeQueryDTO();
+        Result<List<RecipeVO>> result = recipeController.list(params);
 
         assertTrue(result.getCode() == 200);
         assertFalse(result.getData().isEmpty());

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref, nextTick, onMounted } from 'vue'
-import { useAiSettingsStore } from '../../stores/aiSettings'
 import { chatStream, uploadDocument, getUploadedDocuments, deleteDocument } from '../../api/aiChat'
 import type { ChatMessage, UploadedDoc } from '../../api/aiChat'
 import {
@@ -8,14 +7,9 @@ import {
   Delete,
   Upload,
   Document,
-  Setting,
-  Refresh,
   ChatLineSquare,
-  User,
-  Plus
+  User
 } from '@element-plus/icons-vue'
-
-const aiSettings = useAiSettingsStore()
 
 const messages = ref<ChatMessage[]>([])
 const inputText = ref('')
@@ -24,9 +18,6 @@ const chatContainer = ref<HTMLElement | null>(null)
 
 const docs = ref<UploadedDoc[]>([])
 const uploading = ref(false)
-
-const settingsVisible = ref(false)
-const settingsForm = ref({ ...aiSettings.config })
 
 const scrollToBottom = async () => {
   await nextTick()
@@ -136,16 +127,6 @@ const formatSize = (bytes: number): string => {
   return (bytes / (1024 * 1024)).toFixed(1) + ' MB'
 }
 
-const openSettings = () => {
-  settingsForm.value = { ...aiSettings.config }
-  settingsVisible.value = true
-}
-
-const saveSettings = () => {
-  aiSettings.updateConfig(settingsForm.value)
-  settingsVisible.value = false
-}
-
 onMounted(() => {
   fetchDocs()
 })
@@ -166,9 +147,6 @@ onMounted(() => {
           <div class="header-actions">
             <el-tooltip content="清空对话" placement="bottom">
               <el-button :icon="Delete" circle size="small" @click="clearChat" />
-            </el-tooltip>
-            <el-tooltip content="模型设置" placement="bottom">
-              <el-button :icon="Setting" circle size="small" @click="openSettings" />
             </el-tooltip>
           </div>
         </div>
@@ -285,57 +263,6 @@ onMounted(() => {
       </aside>
     </div>
 
-    <el-dialog
-      v-model="settingsVisible"
-      title="AI 模型设置"
-      width="520px"
-      :close-on-click-modal="false"
-    >
-      <el-form :model="settingsForm" label-width="100px">
-        <el-form-item label="API 地址">
-          <el-input
-            v-model="settingsForm.baseUrl"
-            placeholder="https://api.example.com/v1/"
-          />
-        </el-form-item>
-        <el-form-item label="API 密钥">
-          <el-input
-            v-model="settingsForm.apiKey"
-            type="password"
-            show-password
-            placeholder="输入 API 密钥"
-          />
-        </el-form-item>
-        <el-form-item label="模型名称">
-          <el-input
-            v-model="settingsForm.model"
-            placeholder="如: doubao-1.5-pro-32k"
-          />
-        </el-form-item>
-        <el-form-item label="温度参数">
-          <el-slider
-            v-model="settingsForm.temperature"
-            :min="0"
-            :max="2"
-            :step="0.1"
-            show-input
-          />
-        </el-form-item>
-        <el-form-item label="超时时间">
-          <el-input-number
-            v-model="settingsForm.timeout"
-            :min="5000"
-            :step="10000"
-            :max="600000"
-          />
-          <span class="timeout-unit">毫秒</span>
-        </el-form-item>
-      </el-form>
-      <template #footer>
-        <el-button @click="settingsVisible = false">取消</el-button>
-        <el-button type="primary" @click="saveSettings">保存</el-button>
-      </template>
-    </el-dialog>
   </div>
 </template>
 
@@ -639,9 +566,4 @@ onMounted(() => {
   color: #c0c4cc;
 }
 
-.timeout-unit {
-  margin-left: 8px;
-  font-size: 13px;
-  color: #909399;
-}
 </style>

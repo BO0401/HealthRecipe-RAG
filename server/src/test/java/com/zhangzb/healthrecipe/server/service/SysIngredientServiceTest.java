@@ -3,11 +3,13 @@ package com.zhangzb.healthrecipe.server.service;
 import com.zhangzb.healthrecipe.server.entity.SysIngredient;
 import com.zhangzb.healthrecipe.server.mapper.SysIngredientMapper;
 import com.zhangzb.healthrecipe.server.service.impl.SysIngredientServiceImpl;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Arrays;
 import java.util.List;
@@ -25,27 +27,32 @@ class SysIngredientServiceTest {
     @InjectMocks
     private SysIngredientServiceImpl ingredientService;
 
+    @BeforeEach
+    void setUp() {
+        ReflectionTestUtils.setField(ingredientService, "baseMapper", ingredientMapper);
+    }
+
     @Test
     void findByName_shouldReturnIngredient() {
         SysIngredient expected = new SysIngredient();
         expected.setName("番茄");
-        when(ingredientMapper.selectOne(any())).thenReturn(expected);
+        when(ingredientMapper.selectOne(any(), anyBoolean())).thenReturn(expected);
 
         SysIngredient result = ingredientService.findByName("番茄");
 
         assertNotNull(result);
         assertEquals("番茄", result.getName());
-        verify(ingredientMapper).selectOne(any());
+        verify(ingredientMapper).selectOne(any(), anyBoolean());
     }
 
     @Test
     void findByName_shouldReturnNull_whenNotFound() {
-        when(ingredientMapper.selectOne(any())).thenReturn(null);
+        when(ingredientMapper.selectOne(any(), anyBoolean())).thenReturn(null);
 
         SysIngredient result = ingredientService.findByName("不存在的食材");
 
         assertNull(result);
-        verify(ingredientMapper).selectOne(any());
+        verify(ingredientMapper).selectOne(any(), anyBoolean());
     }
 
     @Test
@@ -53,7 +60,7 @@ class SysIngredientServiceTest {
         SysIngredient existing = new SysIngredient();
         existing.setId(1L);
         existing.setName("番茄");
-        when(ingredientMapper.selectOne(any())).thenReturn(existing);
+        when(ingredientMapper.selectOne(any(), anyBoolean())).thenReturn(existing);
 
         SysIngredient result = ingredientService.getOrCreate("番茄", "蔬菜", "g");
 
@@ -64,7 +71,7 @@ class SysIngredientServiceTest {
 
     @Test
     void getOrCreate_shouldCreateNew_whenNotExists() {
-        when(ingredientMapper.selectOne(any())).thenReturn(null);
+        when(ingredientMapper.selectOne(any(), anyBoolean())).thenReturn(null);
         when(ingredientMapper.insert(any(SysIngredient.class))).thenReturn(1);
 
         SysIngredient result = ingredientService.getOrCreate("新食材", "水果", "g");

@@ -7,6 +7,6 @@ import java.util.List;
 
 public interface SysRecipeService extends IService<SysRecipe> {
     List<SysRecipe> searchByKeyword(String keyword);
-
     List<SysRecipe> recommendByBodyType(String bodyType, List<String> allergens);
+    SysRecipe getRecipeDetail(Long id);
 }

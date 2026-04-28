@@ -54,7 +54,10 @@ class ProfileControllerTest {
         Result<ProfileDataDTO> result = profileController.get();
 
         assertTrue(result.getCode() == 200);
-        assertNull(result.getData().getUser());
+        assertNotNull(result.getData().getUser());
+        assertEquals(0, BigDecimal.ZERO.compareTo(result.getData().getUser().getHeight()));
+        assertEquals(0, BigDecimal.ZERO.compareTo(result.getData().getUser().getWeight()));
+        assertTrue(result.getData().getUser().getAllergens().isEmpty());
     }
 
     @Test

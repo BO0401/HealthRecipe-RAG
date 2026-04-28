@@ -32,4 +32,9 @@ public class SysRecipeServiceImpl extends ServiceImpl<SysRecipeMapper, SysRecipe
         wrapper.last("LIMIT 20");
         return list(wrapper);
     }
+
+    @Override
+    public SysRecipe getRecipeDetail(Long id) {
+        return getById(id);
+    }
 }

@@ -3,7 +3,13 @@ package com.zhangzb.healthrecipe.server.controller;
 import com.zhangzb.healthrecipe.server.config.Result;
 import com.zhangzb.healthrecipe.server.dto.ShoppingListCreateDTO;
 import com.zhangzb.healthrecipe.server.dto.ShoppingListUpdateDTO;
+import com.zhangzb.healthrecipe.server.entity.RelRecipeIngredient;
+import com.zhangzb.healthrecipe.server.entity.SysIngredient;
+import com.zhangzb.healthrecipe.server.entity.SysInventory;
 import com.zhangzb.healthrecipe.server.entity.SysShoppingList;
+import com.zhangzb.healthrecipe.server.service.RelRecipeIngredientService;
+import com.zhangzb.healthrecipe.server.service.SysIngredientService;
+import com.zhangzb.healthrecipe.server.service.SysInventoryService;
 import com.zhangzb.healthrecipe.server.service.SysShoppingListService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,6 +30,15 @@ class ShoppingControllerTest {
 
     @Mock
     private SysShoppingListService shoppingListService;
+
+    @Mock
+    private RelRecipeIngredientService relRecipeIngredientService;
+
+    @Mock
+    private SysIngredientService ingredientService;
+
+    @Mock
+    private SysInventoryService inventoryService;
 
     @InjectMocks
     private ShoppingController shoppingController;
@@ -105,11 +120,25 @@ class ShoppingControllerTest {
 
     @Test
     void generate_shouldReturnItems() {
-        when(shoppingListService.listByIds(any())).thenReturn(List.of(new SysShoppingList()));
+        RelRecipeIngredient rel = new RelRecipeIngredient();
+        rel.setRecipeId(1L);
+        rel.setIngredientId(1L);
+        rel.setAmount(BigDecimal.TEN);
+        rel.setUnit("g");
+        when(relRecipeIngredientService.listByRecipeIds(any())).thenReturn(List.of(rel));
 
-        Result<List<SysShoppingList>> result = shoppingController.generate(Map.of("recipeIds", List.of(1L, 2L)));
+        SysIngredient ingredient = new SysIngredient();
+        ingredient.setId(1L);
+        ingredient.setName("番茄");
+        when(ingredientService.listByIds(any())).thenReturn(List.of(ingredient));
+
+        when(inventoryService.listByUserId(any())).thenReturn(List.of());
+
+        Result<List<SysShoppingList>> result = shoppingController.generate(Map.of("recipeIds", List.of(1L)));
 
         assertTrue(result.getCode() == 200);
-        assertEquals(1, result.getData().size());
+        assertFalse(result.getData().isEmpty());
+        assertEquals("番茄", result.getData().get(0).getIngredientName());
+        verify(shoppingListService).saveBatch(any());
     }
 }

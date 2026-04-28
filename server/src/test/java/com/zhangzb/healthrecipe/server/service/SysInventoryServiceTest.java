@@ -1,13 +1,16 @@
 package com.zhangzb.healthrecipe.server.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.zhangzb.healthrecipe.server.entity.SysInventory;
 import com.zhangzb.healthrecipe.server.mapper.SysInventoryMapper;
 import com.zhangzb.healthrecipe.server.service.impl.SysInventoryServiceImpl;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -25,6 +28,11 @@ class SysInventoryServiceTest {
 
     @InjectMocks
     private SysInventoryServiceImpl inventoryService;
+
+    @BeforeEach
+    void setUp() {
+        ReflectionTestUtils.setField(inventoryService, "baseMapper", inventoryMapper);
+    }
 
     @Test
     void listByUserId_shouldReturnUserInventory() {

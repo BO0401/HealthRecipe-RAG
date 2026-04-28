@@ -1,11 +1,5 @@
 import http from './http'
-import { useAiSettingsStore } from '../stores/aiSettings'
 import { UploadedDocSchema, type ChatMessage, type UploadedDoc } from '../types/api'
-
-const getConfig = () => {
-  const store = useAiSettingsStore()
-  return store.config
-}
 
 export const chatStream = async (
   messages: ChatMessage[],
@@ -13,29 +7,11 @@ export const chatStream = async (
   onComplete?: (fullText: string) => void,
   onError?: (err: unknown) => void
 ): Promise<void> => {
-  const config = getConfig()
-
-  if (!config.baseUrl || !config.apiKey) {
-    throw new Error('请先配置 AI 模型参数')
-  }
-
-  const url = config.baseUrl.replace(/\/$/, '') + '/chat/completions'
-
-  const body = JSON.stringify({
-    model: config.model,
-    messages,
-    temperature: config.temperature,
-    stream: true
-  })
-
   try {
-    const response = await fetch(url, {
+    const response = await fetch('/api/ai/chat', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${config.apiKey}`
-      },
-      body
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages })
     })
 
     if (!response.ok || !response.body) {

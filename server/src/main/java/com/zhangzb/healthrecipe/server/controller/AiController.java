@@ -7,23 +7,67 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Flux;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
-@Tag(name = "AI 知识库", description = "RAG 文档上传、管理及向量存储")
+@Tag(name = "AI 知识库", description = "RAG 文档上传、管理、向量存储及聊天代理")
 @RestController
 @RequestMapping("/api/ai")
 public class AiController {
 
     @Autowired
     private SysVectorStoreService vectorStoreService;
+
+    @Value("${ai.deepseek.base-url:https://api.deepseek.com}")
+    private String deepseekBaseUrl;
+
+    @Value("${ai.deepseek.api-key:}")
+    private String deepseekApiKey;
+
+    @Value("${ai.deepseek.model:deepseek-chat}")
+    private String deepseekModel;
+
+    private final WebClient webClient;
+
+    public AiController() {
+        this.webClient = WebClient.builder().build();
+    }
+
+    @Operation(summary = "聊天代理", description = "代理前端请求到 DeepSeek API，支持流式响应")
+    @PostMapping(value = "/chat", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<String> chat(@RequestBody Map<String, Object> request) {
+        @SuppressWarnings("unchecked")
+        List<Map<String, String>> messages = (List<Map<String, String>>) request.get("messages");
+
+        Map<String, Object> body = new java.util.LinkedHashMap<>();
+        body.put("model", request.getOrDefault("model", deepseekModel));
+        body.put("messages", messages);
+        body.put("temperature", request.getOrDefault("temperature", 0.7));
+        body.put("stream", true);
+
+        return webClient.post()
+                .uri(deepseekBaseUrl + "/v1/chat/completions")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + deepseekApiKey)
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(body)
+                .retrieve()
+                .bodyToFlux(String.class)
+                .map(chunk -> "data:" + chunk + "\n\n")
+                .concatWithValues("data:[DONE]\n\n");
+    }
 
     @Operation(summary = "上传文档", description = "上传文本文件到知识库")
     @PostMapping("/document/upload")
